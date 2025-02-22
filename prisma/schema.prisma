@@ -203,7 +203,7 @@ model Game {
   gameId     Int       @id @default(autoincrement())
   name       String    @unique @db.VarChar(100)
   logo       String?   @db.VarChar(255)
-  city       String?   @db.VarChar(100)
+  city       String    @db.VarChar(100)
   startTime  String
   endTime    String
   resultTime String
