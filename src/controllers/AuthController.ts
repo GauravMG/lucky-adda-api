@@ -320,6 +320,11 @@ class AuthController {
 							}
 						])
 						existingUser = existingUser[0]
+					}
+
+					const {userId} = existingUser
+
+					if ((existingUser.referralCode ?? "").trim() !== "") {
 						const referralCode: string = generateReferralCode(
 							existingUser.userId
 						)
@@ -329,9 +334,8 @@ class AuthController {
 							existingUser.userId,
 							existingUser.userId
 						)
+						existingUser.referralCode = referralCode
 					}
-
-					const {userId} = existingUser
 
 					// mark previous hash as used
 					await this.commonModelVerification.softDeleteByFilter(
