@@ -58,7 +58,10 @@ class GameController {
 				async (transaction: PrismaClientTransaction) => {
 					const games = await this.commonModelGame.bulkCreate(
 						transaction,
-						payload,
+						payload.map((el) => ({
+							...el,
+							city: (el.city ?? "").trim() !== "" ? "" : el.city
+						})),
 						userId
 					)
 
