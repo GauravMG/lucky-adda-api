@@ -2,7 +2,12 @@ import {NextFunction, Request, Response} from "express"
 import jwt from "jsonwebtoken"
 import path from "path"
 
-import {generateOTP, readFileContent, snakeToKebab} from "../helpers"
+import {
+	generateOTP,
+	generateReferralCode,
+	readFileContent,
+	snakeToKebab
+} from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
 import {sendSMS} from "../lib/SMSService"
@@ -315,6 +320,15 @@ class AuthController {
 							}
 						])
 						existingUser = existingUser[0]
+						const referralCode: string = generateReferralCode(
+							existingUser.userId
+						)
+						await this.commonModelUser.updateById(
+							transaction,
+							{referralCode},
+							existingUser.userId,
+							existingUser.userId
+						)
 					}
 
 					const {userId} = existingUser

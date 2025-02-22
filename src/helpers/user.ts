@@ -9,3 +9,7 @@ export function splitFullName(fullName: string) {
 
 	return {firstName, lastName}
 }
+
+export function generateReferralCode(userId) {
+	return `${generateReferralCode(6)}-${userId}`
+}
