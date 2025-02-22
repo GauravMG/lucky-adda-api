@@ -58,7 +58,7 @@ app.use(morgan("dev")) // Log to console in development
 
 // Routes
 app.get("/", async (req, res, next) => {
-	res.status(200).send("This is lucky-adda-api repo running")
+	res.status(200).send("This is lucky-adda-api repo running...")
 })
 app.use(validateJWTToken)
 app.use(routes)
