@@ -1,0 +1,269 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+}
+
+enum GameStatus {
+  upcoming
+  ongoing
+  completed
+}
+
+enum ResultType {
+  open
+  close
+  final
+}
+
+enum BetType {
+  open
+  close
+  final
+}
+
+enum BetStatus {
+  pending
+  won
+  lost
+}
+
+model Role {
+  roleId         Int       @id @default(autoincrement())
+  name           String    @db.VarChar(100)
+  permissionJSON String?
+  status         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
+  deletedAt      DateTime?
+  createdBy      User?     @relation("RoleCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy      User?     @relation("RoleUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy      User?     @relation("RoleDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  User User[]
+}
+
+model User {
+  userId    Int       @id @default(autoincrement())
+  role      Role      @relation(fields: [roleId], references: [roleId], onDelete: Cascade)
+  roleId    Int
+  mobile    String    @db.VarChar(100)
+  fullName  String?
+  dob       String?
+  status    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+  createdBy User?     @relation("UserCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy User?     @relation("UserUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy User?     @relation("UserDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  verifications  Verification[]
+  loginHistories LoginHistory[]
+  wallets        Wallet[]
+  userBets       UserBet[]
+
+  // Inverse relations
+  usersCreatedBy               User[]                @relation("UserCreatedBy")
+  usersUpdatedBy               User[]                @relation("UserUpdatedBy")
+  usersDeletedBy               User[]                @relation("UserDeletedBy")
+  rolesCreatedBy               Role[]                @relation("RoleCreatedBy")
+  rolesUpdatedBy               Role[]                @relation("RoleUpdatedBy")
+  rolesDeletedBy               Role[]                @relation("RoleDeletedBy")
+  verificationCreatedBy        Verification[]        @relation("VerificationCreatedBy")
+  verificationUpdatedBy        Verification[]        @relation("VerificationUpdatedBy")
+  verificationDeletedBy        Verification[]        @relation("VerificationDeletedBy")
+  loginHistoryCreatedBy        LoginHistory[]        @relation("LoginHistoryCreatedBy")
+  loginHistoryUpdatedBy        LoginHistory[]        @relation("LoginHistoryUpdatedBy")
+  loginHistoryDeletedBy        LoginHistory[]        @relation("LoginHistoryDeletedBy")
+  notificationServiceCreatedBy NotificationService[] @relation("NotificationServiceCreatedBy")
+  notificationServiceUpdatedBy NotificationService[] @relation("NotificationServiceUpdatedBy")
+  notificationServiceDeletedBy NotificationService[] @relation("NotificationServiceDeletedBy")
+  walletCreatedBy              Wallet[]              @relation("WalletCreatedBy")
+  walletUpdatedBy              Wallet[]              @relation("WalletUpdatedBy")
+  walletDeletedBy              Wallet[]              @relation("WalletDeletedBy")
+  gameCreatedBy                Game[]                @relation("GameCreatedBy")
+  gameUpdatedBy                Game[]                @relation("GameUpdatedBy")
+  gameDeletedBy                Game[]                @relation("GameDeletedBy")
+  gameResultCreatedBy          GameResult[]          @relation("GameResultCreatedBy")
+  gameResultUpdatedBy          GameResult[]          @relation("GameResultUpdatedBy")
+  gameResultDeletedBy          GameResult[]          @relation("GameResultDeletedBy")
+  userBetCreatedBy             UserBet[]             @relation("UserBetCreatedBy")
+  userBetUpdatedBy             UserBet[]             @relation("UserBetUpdatedBy")
+  userBetDeletedBy             UserBet[]             @relation("UserBetDeletedBy")
+}
+
+model Verification {
+  verificationId   Int       @id @default(autoincrement())
+  userId           Int
+  user             User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  verificationType String
+  hash             String?
+  status           Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime?
+  deletedAt        DateTime?
+  createdBy        User?     @relation("VerificationCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy        User?     @relation("VerificationUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy        User?     @relation("VerificationDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+}
+
+model LoginHistory {
+  loginHistoryId Int       @id @default(autoincrement())
+  userId         Int
+  user           User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  deviceType     String    @db.VarChar(50)
+  deviceId       String?
+  jwtToken       String
+  fcmToken       String?
+  status         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
+  deletedAt      DateTime?
+  createdBy      User?     @relation("LoginHistoryCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy      User?     @relation("LoginHistoryUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy      User?     @relation("LoginHistoryDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+}
+
+model NotificationService {
+  notificationServiceId Int       @id @default(autoincrement())
+  service               String
+  serviceType           String
+  host                  String?
+  port                  String?
+  encryption            String?
+  configuration         Json
+  status                Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime?
+  deletedAt             DateTime?
+  createdBy             User?     @relation("NotificationServiceCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy             User?     @relation("NotificationServiceUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy             User?     @relation("NotificationServiceDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  @@unique([service, serviceType])
+}
+
+model Wallet {
+  walletId        Int            @id @default(autoincrement())
+  userId          Int
+  user            User?          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  transactionType String         @default("credit")
+  amount          Decimal        @db.Decimal(10, 2)
+  approvalStatus  ApprovalStatus @default(pending)
+  remarks         String?
+  status          Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime?
+  deletedAt       DateTime?
+  createdBy       User?          @relation("WalletCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy       User?          @relation("WalletUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy       User?          @relation("WalletDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+}
+
+model Game {
+  gameId     Int       @id @default(autoincrement())
+  name       String    @unique @db.VarChar(100)
+  logo       String?   @db.VarChar(255)
+  city       String    @db.VarChar(100)
+  startTime  String
+  endTime    String
+  resultTime String
+  status     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+  deletedAt  DateTime?
+  createdBy  User?     @relation("GameCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy  User?     @relation("GameUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy  User?     @relation("GameDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  gameResults GameResult[]
+  userBets    UserBet[]
+}
+
+model GameResult {
+  resultId     Int        @id @default(autoincrement())
+  gameId       Int
+  resultNumber String     @db.VarChar(10)
+  resultType   ResultType
+  resultTime   DateTime
+  status       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime?
+  deletedAt    DateTime?
+  createdBy    User?      @relation("GameResultCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy    User?      @relation("GameResultUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy    User?      @relation("GameResultDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  game Game @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+}
+
+model UserBet {
+  betId         Int       @id @default(autoincrement())
+  userId        Int
+  gameId        Int
+  betNumber     String    @db.VarChar(10)
+  betAmount     Decimal   @db.Decimal(10, 2)
+  betType       BetType?
+  betStatus     BetStatus @default(pending)
+  winningAmount Decimal   @default(0.00) @db.Decimal(10, 2)
+  status        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime?
+  deletedAt     DateTime?
+  createdBy     User?     @relation("UserBetCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy     User?     @relation("UserBetUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy     User?     @relation("UserBetDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+}
