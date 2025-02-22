@@ -187,6 +187,13 @@ class GameController {
 						}
 					})
 
+					// if (
+					// 	filter?.resultStatus?.length === 1 &&
+					// 	filter?.resultStatus?.includes("past")
+					// ) {
+					// 	games = games.filter(({gameResultFinal}) => gameResultFinal)
+					// }
+
 					return [games, total]
 				}
 			)
@@ -351,35 +358,25 @@ class GameController {
 		try {
 			const response = new ApiResponse(res)
 
-			const {gameId} = req.body
+			const {userId, roleId}: Headers = req.headers
+
+			const {gameId, resultNumber} = req.body
 			const today = dayjs().utc().startOf("day").toDate()
 
 			const [updatedBets] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					// Get the latest game result for today
-					const [latestGameResult] = await this.commonModelGameResult.list(
+					await this.commonModelGameResult.bulkCreate(
 						transaction,
-						{
-							filter: {
+						[
+							{
 								gameId,
-								createdAt: {
-									gte: today
-								}
-							},
-							sort: [
-								{
-									orderBy: "resultId",
-									orderDir: "desc"
-								}
-							]
-						}
+								resultNumber,
+								resultType: "final"
+							}
+						],
+						userId
 					)
-
-					if (!latestGameResult) {
-						throw new Error("No result found for the given game today")
-					}
-
-					const resultNumber: number = latestGameResult.resultNumber
 
 					// Get all bets for this game created today
 					const userBets = await this.commonModelUserBet.list(transaction, {
