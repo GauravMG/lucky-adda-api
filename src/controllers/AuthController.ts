@@ -324,7 +324,7 @@ class AuthController {
 
 					const {userId} = existingUser
 
-					if ((existingUser.referralCode ?? "").trim() !== "") {
+					if ((existingUser.referralCode ?? "").trim() === "") {
 						const referralCode: string = generateReferralCode(
 							existingUser.userId
 						)
