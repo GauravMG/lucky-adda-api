@@ -38,11 +38,41 @@ class GameController {
 		)
 		this.commonModelWallet = new CommonModel("Wallet", this.idColumnWallet, [])
 
+		this.create = this.create.bind(this)
 		this.list = this.list.bind(this)
 		this.listGameResults = this.listGameResults.bind(this)
 		this.saveUserBet = this.saveUserBet.bind(this)
 		this.listUserBet = this.listUserBet.bind(this)
 		this.handleGameResult = this.handleGameResult.bind(this)
+	}
+
+	public async create(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {userId, roleId}: Headers = req.headers
+
+			const payload = Array.isArray(req.body) ? req.body : [req.body]
+
+			const [data] = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const games = await this.commonModelGame.bulkCreate(
+						transaction,
+						payload,
+						userId
+					)
+
+					return [games]
+				}
+			)
+
+			return response.successResponse({
+				message: `Games created successfully`,
+				data
+			})
+		} catch (error) {
+			next(error)
+		}
 	}
 
 	public async list(req: Request, res: Response, next: NextFunction) {

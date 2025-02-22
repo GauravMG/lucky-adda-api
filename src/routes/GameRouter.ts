@@ -8,6 +8,7 @@ export class GameRouter {
 	constructor() {
 		this.router = express.Router()
 		this.router
+			.post("/create", GameController.create)
 			.post("/list", GameController.list)
 			.post("/list-result", GameController.listGameResults)
 			.post("/save-user-bet", GameController.saveUserBet)
