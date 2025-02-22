@@ -1,12 +1,13 @@
-import {NextFunction, Request, Response} from "express"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
+import {NextFunction, Request, Response} from "express"
 
 dayjs.extend(utc)
 
 import {listAPIPayload} from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
+import {BadRequestException} from "../lib/exceptions"
 import CommonModel from "../models/CommonModel"
 import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
 
@@ -40,6 +41,8 @@ class GameController {
 
 		this.create = this.create.bind(this)
 		this.list = this.list.bind(this)
+		this.delete = this.delete.bind(this)
+
 		this.listGameResults = this.listGameResults.bind(this)
 		this.saveUserBet = this.saveUserBet.bind(this)
 		this.listUserBet = this.listUserBet.bind(this)
@@ -134,6 +137,50 @@ class GameController {
 					pageSize: range?.pageSize ?? DEFAULT_PAGE_SIZE
 				},
 				data
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+
+	public async delete(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {userId, roleId}: Headers = req.headers
+
+			const {gameIds} = req.body
+
+			if (!gameIds?.length) {
+				throw new BadRequestException(`Please select game(s) to be deleted`)
+			}
+
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const existingGames = await this.commonModelGame.list(transaction, {
+						filter: {
+							gameId: gameIds
+						}
+					})
+					if (!existingGames.length) {
+						const gameIdsSet: Set<number> = new Set(
+							existingGames.map((obj) => obj.gameId)
+						)
+						throw new BadRequestException(
+							`Selected games(s) not found: ${gameIds.filter((gameId) => !gameIdsSet.has(gameId))}`
+						)
+					}
+
+					await this.commonModelGame.softDeleteByIds(
+						transaction,
+						gameIds,
+						userId
+					)
+				}
+			)
+
+			return response.successResponse({
+				message: `Game(s) deleted successfully`
 			})
 		} catch (error) {
 			next(error)
