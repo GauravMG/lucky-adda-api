@@ -173,8 +173,6 @@ class WalletController {
 					if (!existingTransaction) {
 						throw new BadRequestException("Transaction doesn't exist")
 					}
-					console.log(`existingTransaction`, existingTransaction)
-					console.log(`restPayload`, restPayload)
 
 					// update transaction
 					await this.commonModelWallet.updateById(
