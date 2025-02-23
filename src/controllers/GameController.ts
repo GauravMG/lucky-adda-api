@@ -90,21 +90,15 @@ class GameController {
 			const {filter, range, sort} = await listAPIPayload(req.body)
 			const customFilters: any[] = []
 
-			const currentTime = dayjs().format("HH:mm:ss")
+			const currentTime = dayjs().format("HH:mm")
+			let isFetchLiveGame: boolean = false
 
 			if (filter?.gameStatus && Array.isArray(filter.gameStatus)) {
 				if (filter.gameStatus.includes("live")) {
-					customFilters.push({
-						AND: [
-							{startTime: {lte: currentTime}},
-							{endTime: {gte: currentTime}}
-						]
-					})
-				}
-				if (filter.gameStatus.includes("upcoming")) {
+					isFetchLiveGame = true
+				} else if (filter.gameStatus.includes("upcoming")) {
 					customFilters.push({startTime: {gt: currentTime}})
-				}
-				if (filter.gameStatus.includes("past")) {
+				} else if (filter.gameStatus.includes("past")) {
 					customFilters.push({endTime: {lt: currentTime}})
 				}
 
@@ -113,7 +107,7 @@ class GameController {
 
 			const [data, total] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					let [data, total] = await Promise.all([
+					let [games, total] = await Promise.all([
 						this.commonModelGame.list(transaction, {
 							filter,
 							customFilters,
@@ -128,7 +122,17 @@ class GameController {
 						})
 					])
 
-					return [data, total]
+					const filteredGames = isFetchLiveGame
+						? games.filter(({startTime, endTime}) => {
+								if (startTime <= endTime) {
+									return startTime <= currentTime && endTime >= currentTime
+								} else {
+									return startTime <= currentTime || endTime >= currentTime
+								}
+							})
+						: games
+
+					return [filteredGames, total]
 				}
 			)
 
