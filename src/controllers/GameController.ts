@@ -499,7 +499,8 @@ class GameController {
 									userId: bet.userId,
 									transactionType: "credit",
 									amount: Number(winningAmount),
-									remarks: "Won in bet"
+									remarks: "Won in bet",
+									approvalStatus: "approved"
 								})
 								walletUserId.push(bet.userId)
 							} else {
