@@ -122,8 +122,12 @@ class GameController {
 						})
 					])
 
+					console.log(`currentTime`, currentTime)
+					console.log(`isFetchLiveGame`, isFetchLiveGame)
 					const filteredGames = isFetchLiveGame
 						? games.filter(({startTime, endTime}) => {
+								console.log(`startTime`, startTime)
+								console.log(`endTime`, endTime)
 								if (startTime <= endTime) {
 									return startTime <= currentTime && endTime >= currentTime
 								} else {
@@ -131,6 +135,7 @@ class GameController {
 								}
 							})
 						: games
+					console.log(`filteredGames`, filteredGames)
 
 					return [filteredGames, total]
 				}
