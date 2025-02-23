@@ -186,6 +186,7 @@ model Wallet {
   amount          Decimal        @db.Decimal(10, 2)
   approvalStatus  ApprovalStatus @default(pending)
   remarks         String?
+  approvalRemarks String?
   status          Boolean        @default(true)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime?
