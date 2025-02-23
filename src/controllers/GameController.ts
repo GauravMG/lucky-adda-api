@@ -94,10 +94,14 @@ class GameController {
 
 			const currentTime = dayjs().tz("Asia/Kolkata").format("HH:mm")
 			let isFetchLiveGame: boolean = false
+			let liveGameRange: any = null
 
 			if (filter?.gameStatus && Array.isArray(filter.gameStatus)) {
 				if (filter.gameStatus.includes("live")) {
 					isFetchLiveGame = true
+					liveGameRange = {
+						all: true
+					}
 				} else if (filter.gameStatus.includes("upcoming")) {
 					customFilters.push({startTime: {gt: currentTime}})
 				} else if (filter.gameStatus.includes("past")) {
@@ -113,7 +117,7 @@ class GameController {
 						this.commonModelGame.list(transaction, {
 							filter,
 							customFilters,
-							range,
+							range: liveGameRange ?? range,
 							sort
 						}),
 
@@ -126,17 +130,25 @@ class GameController {
 
 					console.log(`currentTime`, currentTime)
 					console.log(`isFetchLiveGame`, isFetchLiveGame)
-					const filteredGames = isFetchLiveGame
-						? games.filter(({startTime, endTime}) => {
-								console.log(`startTime`, startTime)
-								console.log(`endTime`, endTime)
-								if (startTime <= endTime) {
-									return startTime <= currentTime && endTime >= currentTime
-								} else {
-									return startTime <= currentTime || endTime >= currentTime
-								}
-							})
-						: games
+					let filteredGames: any = games
+					if (isFetchLiveGame) {
+						filteredGames = games.filter(({startTime, endTime}) => {
+							console.log(`startTime`, startTime)
+							console.log(`endTime`, endTime)
+							if (startTime <= endTime) {
+								return startTime <= currentTime && endTime >= currentTime
+							} else {
+								return startTime <= currentTime || endTime >= currentTime
+							}
+						})
+
+						if (!range?.all && range?.pageSize) {
+							filteredGames = games.slice(
+								(range.page - 1) * range.pageSize,
+								range.pageSize
+							)
+						}
+					}
 					console.log(`filteredGames`, filteredGames)
 
 					return [filteredGames, total]
