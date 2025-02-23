@@ -44,8 +44,11 @@ class GameController {
 		this.delete = this.delete.bind(this)
 
 		this.listGameResults = this.listGameResults.bind(this)
+		this.listGameResultsChart = this.listGameResultsChart.bind(this)
+
 		this.saveUserBet = this.saveUserBet.bind(this)
 		this.listUserBet = this.listUserBet.bind(this)
+
 		this.handleGameResult = this.handleGameResult.bind(this)
 	}
 
@@ -270,6 +273,87 @@ class GameController {
 					// ) {
 					// 	games = games.filter(({gameResultFinal}) => gameResultFinal)
 					// }
+
+					return [games, total]
+				}
+			)
+
+			return response.successResponse({
+				message: "Data",
+				metadata: {
+					total,
+					page: range?.page ?? DEFAULT_PAGE,
+					pageSize: range?.pageSize ?? DEFAULT_PAGE_SIZE
+				},
+				data
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+
+	public async listGameResultsChart(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {filter, range, sort} = await listAPIPayload(req.body)
+			const customFiltersGameResults: any[] = []
+
+			if ((filter?.resultMonth ?? "").trim() !== "") {
+				const startOfMonth = dayjs(filter.resultMonth)
+					.startOf("month")
+					.toISOString()
+				const endOfMonth = dayjs(filter.resultMonth)
+					.endOf("month")
+					.toISOString()
+
+				customFiltersGameResults.push({
+					createdAt: {
+						gte: startOfMonth,
+						lte: endOfMonth
+					}
+				})
+
+				delete filter.resultMonth
+			}
+
+			const [data, total] = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					let [games, total] = await Promise.all([
+						this.commonModelGame.list(transaction, {
+							filter,
+							range,
+							sort
+						}),
+
+						this.commonModelGame.list(transaction, {
+							filter,
+							isCountOnly: true
+						})
+					])
+
+					const gameIds: number[] = games.map(({gameId}) => gameId)
+
+					const gameResults = await this.commonModelGameResult.list(
+						transaction,
+						{
+							filter: {gameId: gameIds},
+							customFilters: customFiltersGameResults,
+							range: {all: true}
+						}
+					)
+
+					games = games.map((game) => ({
+						...game,
+						gameResults:
+							gameResults.filter(
+								(gameResult) => gameResult.gameId === game.gameId
+							) ?? []
+					}))
 
 					return [games, total]
 				}

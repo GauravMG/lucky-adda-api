@@ -13,8 +13,11 @@ export class GameRouter {
 			.post("/delete", GameController.delete)
 
 			.post("/list-result", GameController.listGameResults)
+			.post("/list-result-chart", GameController.listGameResultsChart)
+
 			.post("/save-user-bet", GameController.saveUserBet)
 			.post("/list-user-bet", GameController.listUserBet)
+
 			.post("/process-result", GameController.handleGameResult)
 	}
 }
