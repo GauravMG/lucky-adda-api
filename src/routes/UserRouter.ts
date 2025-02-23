@@ -7,6 +7,9 @@ export class UserRouter {
 	public readonly router: Router
 	constructor() {
 		this.router = express.Router()
-		this.router.post("/update", UserController.update)
+		this.router
+			.post("/user", UserController.list)
+			.post("/update", UserController.update)
+			.post("/delete", UserController.delete)
 	}
 }
