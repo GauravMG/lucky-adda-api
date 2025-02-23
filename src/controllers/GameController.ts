@@ -1,8 +1,10 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
+import timezone from "dayjs/plugin/timezone"
 import {NextFunction, Request, Response} from "express"
 
 dayjs.extend(utc)
+dayjs.extend(timezone)
 
 import {listAPIPayload} from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
@@ -90,7 +92,7 @@ class GameController {
 			const {filter, range, sort} = await listAPIPayload(req.body)
 			const customFilters: any[] = []
 
-			const currentTime = dayjs().format("HH:mm")
+			const currentTime = dayjs().tz("Asia/Kolkata").format("HH:mm")
 			let isFetchLiveGame: boolean = false
 
 			if (filter?.gameStatus && Array.isArray(filter.gameStatus)) {
