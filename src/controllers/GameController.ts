@@ -466,6 +466,9 @@ class GameController {
 						range: {all: true}
 					})
 
+					const walletCredits: any[] = []
+					const walletUserId: number[] = []
+
 					const updatedBets = await Promise.all(
 						userBets.map(async (bet) => {
 							let betStatus: string = "lost"
@@ -491,12 +494,31 @@ class GameController {
 								winningAmount = bet.betAmount * 10
 							}
 
+							if (!walletUserId.includes(bet.userId)) {
+								walletCredits.push({
+									userId: bet.userId,
+									transactionType: "credit",
+									amount: Number(winningAmount),
+									remarks: "Won in bet"
+								})
+								walletUserId.push(bet.userId)
+							} else {
+								const walletIndex = walletUserId.indexOf(bet.userId)
+								walletCredits[walletIndex].amount += Number(winningAmount)
+							}
+
 							return this.commonModelUserBet.updateById(
 								transaction,
 								{betStatus, winningAmount},
 								bet.betId
 							)
 						})
+					)
+
+					await this.commonModelWallet.bulkCreate(
+						transaction,
+						walletCredits,
+						userId
 					)
 
 					return [updatedBets]

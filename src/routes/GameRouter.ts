@@ -11,7 +11,7 @@ export class GameRouter {
 			.post("/create", GameController.create)
 			.post("/list", GameController.list)
 			.post("/delete", GameController.delete)
-			
+
 			.post("/list-result", GameController.listGameResults)
 			.post("/save-user-bet", GameController.saveUserBet)
 			.post("/list-user-bet", GameController.listUserBet)
