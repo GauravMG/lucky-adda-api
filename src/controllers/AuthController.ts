@@ -304,7 +304,7 @@ class AuthController {
 
 			const otp: string = generateOTP(6)
 
-			await prisma.$transaction(
+			const [user] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					// check if mobile exists
 					let [existingUser] = await this.commonModelUser.list(transaction, {
@@ -355,8 +355,16 @@ class AuthController {
 						],
 						userId
 					)
+
+					return [existingUser]
 				}
 			)
+
+			if (!user.status) {
+				throw new UnauthorizedException(
+					"Your account is in-active. Please contact admin."
+				)
+			}
 
 			// send sms
 			let smsText: string = ""

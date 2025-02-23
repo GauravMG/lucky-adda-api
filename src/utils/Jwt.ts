@@ -87,6 +87,11 @@ export const validateJWTToken = async (
 		if (!loginHistory) {
 			throw new UnauthorizedException("Please login again")
 		}
+		if (!user.status) {
+			throw new UnauthorizedException(
+				"Your account is in-active. Please contact admin."
+			)
+		}
 
 		req.headers.userId = user.userId
 		req.headers.roleId = user.roleId
