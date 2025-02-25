@@ -399,6 +399,7 @@ class AuthController {
 				message,
 				data: {
 					mobile,
+					roleId: user.roleId,
 					otp
 				}
 			})
