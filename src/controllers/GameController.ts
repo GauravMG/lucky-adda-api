@@ -602,7 +602,7 @@ class GameController {
 									transactionType: "credit",
 									amount: Number(winningAmount),
 									remarks: "Won in bet",
-									approvalStatus: "approved"
+									approvalStatus: "pending"
 								})
 								walletUserId.push(bet.userId)
 							} else {

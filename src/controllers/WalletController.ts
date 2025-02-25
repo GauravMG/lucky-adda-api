@@ -182,6 +182,23 @@ class WalletController {
 						userId
 					)
 
+					if (restPayload?.approvalStatus === "rejected") {
+						await this.commonModelWallet.bulkCreate(
+							transaction,
+							[
+								{
+									userId: existingTransaction.userId,
+									transactionType: "credit",
+									amount: existingTransaction.amount,
+									approvalStatus: "approved",
+									approvalRemarks: `Credit on rejected withdrawal request${(restPayload.approvalRemarks ?? "").trim() !== "" ? ` due to - ${restPayload.approvalRemarks}` : ""}`,
+									referenceWalletId: walletId
+								}
+							],
+							userId
+						)
+					}
+
 					// get updated details
 					const [walletTransaction] = await this.commonModelWallet.list(
 						transaction,
