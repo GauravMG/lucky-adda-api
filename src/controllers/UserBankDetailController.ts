@@ -34,14 +34,36 @@ class UserBankDetailController {
 
 			const [data] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					// check if exists
-					let [existingUserBankDetail] =
-						await this.commonModelUserBankDetail.list(transaction, {
-							filter: {
-								userBankDetailId
-							}
-						})
-					if (!existingUserBankDetail) {
+					let userBankDetail: any = null
+					if (userBankDetailId) {
+						// check if exists
+						const [existingUserBankDetail] =
+							await this.commonModelUserBankDetail.list(transaction, {
+								filter: {
+									userBankDetailId
+								}
+							})
+						if (!existingUserBankDetail) {
+							throw new BadRequestException("Account details doesn't exist")
+						}
+
+						await this.commonModelUserBankDetail.updateById(
+							transaction,
+							restPayload,
+							userBankDetailId,
+							userId
+						)
+
+						// get updated details
+						const [updatedUserBankDetail] =
+							await this.commonModelUserBankDetail.list(transaction, {
+								filter: {
+									userBankDetailId
+								}
+							})
+
+						userBankDetail = {...updatedUserBankDetail}
+					} else {
 						const [newUserBankDetail] =
 							await this.commonModelUserBankDetail.bulkCreate(
 								transaction,
@@ -58,29 +80,10 @@ class UserBankDetailController {
 								userId
 							)
 
-						existingUserBankDetail = {...newUserBankDetail}
-					} else {
-						await this.commonModelUserBankDetail.updateById(
-							transaction,
-							restPayload,
-							userBankDetailId,
-							userId
-						)
-
-						// get updated details
-						const [userBankDetail] = await this.commonModelUserBankDetail.list(
-							transaction,
-							{
-								filter: {
-									userBankDetailId
-								}
-							}
-						)
-
-						existingUserBankDetail = {...userBankDetail}
+						userBankDetail = {...newUserBankDetail}
 					}
 
-					return [existingUserBankDetail]
+					return [userBankDetail]
 				}
 			)
 
