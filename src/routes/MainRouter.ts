@@ -7,6 +7,7 @@ import {
 	NotificationRouter,
 	RoleRouter,
 	UploadRouter,
+	UserBankDetailRouter,
 	UserRouter,
 	WalletRouter
 } from "."
@@ -25,6 +26,7 @@ router.use("/v1/upload", new UploadRouter().router)
 // user routes
 router.use("/v1/user", new UserRouter().router)
 router.use("/v1/wallet", new WalletRouter().router)
+router.use("/v1/user-bank-detail", new UserBankDetailRouter().router)
 
 // other routes
 router.use("/v1/document", new DocumentRouter().router)

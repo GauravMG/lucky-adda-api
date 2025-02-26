@@ -80,10 +80,11 @@ model User {
   updatedById Int?
   deletedById Int?
 
-  verifications  Verification[]
-  loginHistories LoginHistory[]
-  wallets        Wallet[]
-  userBets       UserBet[]
+  verifications   Verification[]
+  loginHistories  LoginHistory[]
+  wallets         Wallet[]
+  userBets        UserBet[]
+  userBankDetails UserBankDetail[]
 
   // Inverse relations
   usersCreatedBy               User[]                @relation("UserCreatedBy")
@@ -104,6 +105,9 @@ model User {
   walletCreatedBy              Wallet[]              @relation("WalletCreatedBy")
   walletUpdatedBy              Wallet[]              @relation("WalletUpdatedBy")
   walletDeletedBy              Wallet[]              @relation("WalletDeletedBy")
+  UserBankDetailCreatedBy      UserBankDetail[]      @relation("UserBankDetailCreatedBy")
+  UserBankDetailUpdatedBy      UserBankDetail[]      @relation("UserBankDetailUpdatedBy")
+  UserBankDetailDeletedBy      UserBankDetail[]      @relation("UserBankDetailDeletedBy")
   gameCreatedBy                Game[]                @relation("GameCreatedBy")
   gameUpdatedBy                Game[]                @relation("GameUpdatedBy")
   gameDeletedBy                Game[]                @relation("GameDeletedBy")
@@ -197,6 +201,28 @@ model Wallet {
   createdBy         User?          @relation("WalletCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
   updatedBy         User?          @relation("WalletUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
   deletedBy         User?          @relation("WalletDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+}
+
+model UserBankDetail {
+  userBankDetailId  Int       @id @default(autoincrement())
+  userId            Int
+  user              User?     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  accountType       String
+  accountHolderName String
+  accountNumber     String
+  bankName          String?
+  ifscCode          String?
+  status            Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime?
+  deletedAt         DateTime?
+  createdBy         User?     @relation("UserBankDetailCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy         User?     @relation("UserBankDetailUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy         User?     @relation("UserBankDetailDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
 
   createdById Int?
   updatedById Int?

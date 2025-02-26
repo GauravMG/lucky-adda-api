@@ -10,6 +10,7 @@ export * from "./UploadRouter"
 // user routes
 export * from "./UserRouter"
 export * from "./WalletRouter"
+export * from "./UserBankDetailRouter"
 
 // other routes
 export * from "./DocumentRouter"
