@@ -15,6 +15,7 @@ export * from "./UserBankDetailRouter"
 // other routes
 export * from "./DocumentRouter"
 export * from "./NotificationRouter"
+export * from "./AppSettingRouter"
 
 // game routes
 export * from "./GameRouter"

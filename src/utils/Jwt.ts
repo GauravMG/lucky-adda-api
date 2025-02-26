@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 
 import publicRoutes from "../../schemas/publicRoutes.json"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
-import {UnauthorizedException} from "../lib/exceptions"
+import {BadRequestException, UnauthorizedException} from "../lib/exceptions"
 import CommonModel from "../models/CommonModel"
 import {UrlSchema} from "../types/common"
 
@@ -57,6 +57,11 @@ export const validateJWTToken = async (
 			throw new UnauthorizedException("User does not exist")
 		}
 
+		const commonModelAppSetting = new CommonModel(
+			"AppSetting",
+			"appSettingId",
+			[]
+		)
 		const commonModelUser = new CommonModel("User", "userId", [])
 		const commonModelLoginHistory = new CommonModel(
 			"LoginHistory",
@@ -64,9 +69,16 @@ export const validateJWTToken = async (
 			[]
 		)
 
-		const [[user], [loginHistory]] = await prisma.$transaction(
+		const [[appSetting], [user], [loginHistory]] = await prisma.$transaction(
 			async (transaction: PrismaClientTransaction) => {
 				return await Promise.all([
+					commonModelAppSetting.list(transaction, {
+						range: {
+							page: 1,
+							pageSize: 1
+						}
+					}),
+
 					commonModelUser.list(transaction, {
 						filter: {
 							userId
@@ -81,6 +93,12 @@ export const validateJWTToken = async (
 				])
 			}
 		)
+		if (appSetting.isAppShutdown) {
+			throw new BadRequestException(
+				appSetting.appShutDownMessage,
+				"app_shutdown"
+			)
+		}
 		if (!user) {
 			throw new UnauthorizedException("User does not exist")
 		}
