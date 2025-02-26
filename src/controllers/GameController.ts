@@ -579,21 +579,21 @@ class GameController {
 							if (bet.betNumber.toString() === resultNumber.toString()) {
 								// Case 1: Exact match
 								betStatus = "won"
-								winningAmount = bet.betAmount * 100
+								winningAmount = bet.betAmount * 90
 							} else if (
 								bet.betNumber.startsWith("A") &&
 								bet.betNumber[1] === resultNumber[0]
 							) {
 								// Case 2: Matches 1st digit after removing "A"
 								betStatus = "won"
-								winningAmount = bet.betAmount * 10
+								winningAmount = bet.betAmount * 9
 							} else if (
 								bet.betNumber.startsWith("B") &&
 								bet.betNumber[1] === resultNumber[1]
 							) {
 								// Case 3: Matches 2nd digit after removing "B"
 								betStatus = "won"
-								winningAmount = bet.betAmount * 10
+								winningAmount = bet.betAmount * 9
 							}
 
 							if (!walletUserId.includes(bet.userId)) {
