@@ -10,6 +10,18 @@ export function splitFullName(fullName: string) {
 	return {firstName, lastName}
 }
 
-export function generateReferralCode(userId) {
-	return `${generateReferralCode(6)}-${userId}`
+export function generateReferralCode(userId, length = 6) {
+	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	let randomPart = ""
+
+	// Generate a random alphanumeric part
+	for (let i = 0; i < length; i++) {
+		randomPart += chars.charAt(Math.floor(Math.random() * chars.length))
+	}
+
+	// Convert userId to a Base36 string for uniqueness
+	const userPart = Number(userId).toString(36).toUpperCase()
+
+	// Combine both parts
+	return `${randomPart}${userPart}`
 }
