@@ -97,9 +97,18 @@ class UserBankDetailController {
 		try {
 			const response = new ApiResponse(res)
 
-			const {roleId}: Headers = req.headers
+			const {userId, roleId}: Headers = req.headers
 
-			const {filter, range, sort} = await listAPIPayload(req.body)
+			let {filter, range, sort} = await listAPIPayload(req.body)
+			filter =
+				filter && Object.keys(filter).length
+					? filter.userId
+						? filter
+						: {
+								...filter,
+								userId
+							}
+					: {userId}
 
 			const [data, total] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
