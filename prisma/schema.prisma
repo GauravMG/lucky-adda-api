@@ -61,20 +61,21 @@ model Role {
 }
 
 model User {
-  userId       Int       @id @default(autoincrement())
-  role         Role      @relation(fields: [roleId], references: [roleId], onDelete: Cascade)
-  roleId       Int
-  mobile       String    @db.VarChar(100)
-  fullName     String?
-  dob          String?
-  referralCode String?
-  status       Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime?
-  deletedAt    DateTime?
-  createdBy    User?     @relation("UserCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
-  updatedBy    User?     @relation("UserUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
-  deletedBy    User?     @relation("UserDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
+  userId            Int       @id @default(autoincrement())
+  role              Role      @relation(fields: [roleId], references: [roleId], onDelete: Cascade)
+  roleId            Int
+  mobile            String    @db.VarChar(100)
+  fullName          String?
+  dob               String?
+  referralCode      String?
+  isNotificationsOn Boolean   @default(true)
+  status            Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime?
+  deletedAt         DateTime?
+  createdBy         User?     @relation("UserCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy         User?     @relation("UserUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy         User?     @relation("UserDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
 
   createdById Int?
   updatedById Int?
