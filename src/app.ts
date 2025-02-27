@@ -16,6 +16,7 @@ import {
 } from "./middlewares/APIMiddlewares"
 import {errorHandler} from "./middlewares/ErrorHandler"
 import routes from "./routes/MainRouter"
+import startCronJobs from "./services/cronService"
 import {validateJWTToken} from "./utils/Jwt"
 import {accessLogStream, logMessage} from "./utils/Logger"
 
@@ -68,6 +69,9 @@ app.use("*", middleware404)
 
 // Error handling middleware to log errors to error logs
 app.use(errorHandler)
+
+// Initialize cron jobs
+startCronJobs()
 
 app.listen(PORT, async () => {
 	logMessage("access", `Server running on ${BASE_URL_API} on port ${PORT}`)

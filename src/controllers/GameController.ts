@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
-import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import utc from "dayjs/plugin/utc"
 import {NextFunction, Request, Response} from "express"
 
 dayjs.extend(utc)
@@ -12,6 +12,7 @@ import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
 import {BadRequestException} from "../lib/exceptions"
 import CommonModel from "../models/CommonModel"
 import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
+import {logMessage} from "../utils/Logger"
 
 class GameController {
 	private commonModelGame
@@ -52,6 +53,7 @@ class GameController {
 		this.listUserBet = this.listUserBet.bind(this)
 
 		this.handleGameResult = this.handleGameResult.bind(this)
+		this.finalizeGameResult = this.finalizeGameResult.bind(this)
 	}
 
 	public async create(req: Request, res: Response, next: NextFunction) {
@@ -540,30 +542,66 @@ class GameController {
 			const {userId, roleId}: Headers = req.headers
 
 			const {gameId, resultNumber} = req.body
-			const today = dayjs().utc().startOf("day").toDate()
 
-			const [updatedBets] = await prisma.$transaction(
+			await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					// Get the latest game result for today
-					await this.commonModelGameResult.bulkCreate(
+					const [existingGameResult] = await this.commonModelGameResult.list(
+						transaction,
+						{
+							filter: {
+								gameId,
+								resultType: "open"
+							},
+							range: {
+								page: 1,
+								pageSize: 1
+							},
+							sort: [
+								{
+									orderBy: "resultId",
+									orderDir: "desc"
+								}
+							]
+						}
+					)
+
+					if (
+						existingGameResult &&
+						existingGameResult.resultNumber.toString() ===
+							resultNumber.toString()
+					) {
+						return
+					}
+
+					if (
+						existingGameResult &&
+						existingGameResult.resultNumber !== resultNumber.toString()
+					) {
+						await this.commonModelGameResult.updateById(
+							transaction,
+							{resultType: "close"},
+							existingGameResult.resultId
+						)
+					}
+
+					const [gameResult] = await this.commonModelGameResult.bulkCreate(
 						transaction,
 						[
 							{
 								gameId,
 								resultNumber,
-								resultType: "final"
+								resultType: "open"
 							}
 						],
 						userId
 					)
 
+					/* 
 					// Get all bets for this game created today
 					const userBets = await this.commonModelUserBet.list(transaction, {
 						filter: {
 							gameId,
-							createdAt: {
-								gte: today
-							}
+							betStatus: "pending"
 						},
 						range: {all: true}
 					})
@@ -599,6 +637,7 @@ class GameController {
 							if (!walletUserId.includes(bet.userId)) {
 								walletCredits.push({
 									userId: bet.userId,
+									resultId: gameResult.resultId,
 									transactionType: "credit",
 									amount: Number(winningAmount),
 									remarks: "Won in bet",
@@ -625,15 +664,119 @@ class GameController {
 					)
 
 					return [updatedBets]
+					*/
+					return
 				}
 			)
 
 			return response.successResponse({
-				message: `Game results processed successfully`,
-				data: updatedBets
+				message: `Game results processed successfully`
 			})
 		} catch (error) {
 			next(error)
+		}
+	}
+
+	public async finalizeGameResult() {
+		try {
+			const nowMinus15Minutes = dayjs()
+				.tz("Asia/Kolkata")
+				.subtract(15, "minutes")
+				.add(330, "minutes")
+				.toISOString()
+
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const gameResults = await this.commonModelGameResult.list(
+						transaction,
+						{
+							filter: {
+								resultType: "open",
+								resultTime: {
+									lte: nowMinus15Minutes
+								}
+							}
+						}
+					)
+
+					for (let i = 0; i < gameResults?.length; i++) {
+						await this.commonModelGameResult.updateById(
+							transaction,
+							{resultType: "final"},
+							gameResults[i].resultId
+						)
+
+						// Get all bets for this game created today
+						const userBets = await this.commonModelUserBet.list(transaction, {
+							filter: {
+								gameId: gameResults[i].gameId,
+								betStatus: "pending"
+							},
+							range: {all: true}
+						})
+
+						const walletCredits: any[] = []
+						const walletUserId: number[] = []
+						const resultNumber: string = gameResults[i].resultNumber.toString()
+
+						const updatedBets = await Promise.all(
+							userBets.map(async (bet) => {
+								let betStatus: string = "lost"
+								let winningAmount = 0.0
+
+								if (bet.betNumber.toString() === resultNumber) {
+									// Case 1: Exact match
+									betStatus = "won"
+									winningAmount = bet.betAmount * 90
+								} else if (
+									bet.betNumber.startsWith("A") &&
+									bet.betNumber[1] === resultNumber[0]
+								) {
+									// Case 2: Matches 1st digit after removing "A"
+									betStatus = "won"
+									winningAmount = bet.betAmount * 9
+								} else if (
+									bet.betNumber.startsWith("B") &&
+									bet.betNumber[1] === resultNumber[1]
+								) {
+									// Case 3: Matches 2nd digit after removing "B"
+									betStatus = "won"
+									winningAmount = bet.betAmount * 9
+								}
+
+								if (!walletUserId.includes(bet.userId)) {
+									walletCredits.push({
+										userId: bet.userId,
+										resultId: gameResults[i].resultId,
+										transactionType: "credit",
+										amount: Number(winningAmount),
+										remarks: "Won in bet",
+										approvalStatus: "approved"
+									})
+									walletUserId.push(bet.userId)
+								} else {
+									const walletIndex = walletUserId.indexOf(bet.userId)
+									walletCredits[walletIndex].amount += Number(winningAmount)
+								}
+
+								return this.commonModelUserBet.updateById(
+									transaction,
+									{betStatus, winningAmount},
+									bet.betId
+								)
+							})
+						)
+
+						await this.commonModelWallet.bulkCreate(
+							transaction,
+							walletCredits,
+							gameResults[i].createdById
+						)
+					}
+				}
+			)
+		} catch (error: any) {
+			logMessage("error", error.toString())
 		}
 	}
 }
