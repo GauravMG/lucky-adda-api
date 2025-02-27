@@ -682,7 +682,6 @@ class GameController {
 			const nowMinus15Minutes = dayjs()
 				.tz("Asia/Kolkata")
 				.subtract(15, "minutes")
-				.add(330, "minutes")
 				.toISOString()
 
 			await prisma.$transaction(
