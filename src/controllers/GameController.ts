@@ -221,20 +221,24 @@ class GameController {
 			const {filter, range, sort} = await listAPIPayload(req.body)
 			const customFilters: any[] = []
 
-			const currentTime = dayjs().format("HH:mm:ss")
+			const currentTime = dayjs().tz("Asia/Kolkata").format("HH:mm:ss")
+			const currentTimePlus1Hour = dayjs()
+				.tz("Asia/Kolkata")
+				.add(60, "minutes")
+				.format("HH:mm:ss")
 			const startOfDay = dayjs().utc().startOf("day").toISOString()
 			const endOfDay = dayjs().utc().endOf("day").toISOString()
 
 			// Handle resultStatus filtering
 			if (filter?.resultStatus && Array.isArray(filter.resultStatus)) {
 				if (filter.resultStatus.includes("live")) {
-					customFilters.push({resultTime: {lte: currentTime}}) // resultTime has passed
+					customFilters.push({endTime: {lte: currentTime}}) // resultTime has passed
 				}
 				if (filter.resultStatus.includes("upcoming")) {
-					customFilters.push({resultTime: {gt: currentTime}}) // resultTime in the future
+					customFilters.push({endTime: {gt: currentTime}}) // resultTime in the future
 				}
 				if (filter.resultStatus.includes("past")) {
-					customFilters.push({resultTime: {lt: currentTime}}) // resultTime has passed
+					customFilters.push({resultTime: {lt: currentTimePlus1Hour}}) // resultTime has passed
 				}
 
 				delete filter.resultStatus
