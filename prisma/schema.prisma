@@ -68,6 +68,7 @@ model User {
   fullName          String?
   dob               String?
   referralCode      String?
+  referredByCode    String?
   isNotificationsOn Boolean   @default(true)
   status            Boolean   @default(true)
   createdAt         DateTime  @default(now())
