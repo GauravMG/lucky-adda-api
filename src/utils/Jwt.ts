@@ -93,14 +93,14 @@ export const validateJWTToken = async (
 				])
 			}
 		)
-		if (appSetting.isAppShutdown) {
+		if (!user) {
+			throw new UnauthorizedException("User does not exist")
+		}
+		if (Number(user.roleId) !== 1 && appSetting.isAppShutdown) {
 			throw new BadRequestException(
 				appSetting.appShutDownMessage,
 				"app_shutdown"
 			)
-		}
-		if (!user) {
-			throw new UnauthorizedException("User does not exist")
 		}
 		if (!loginHistory) {
 			throw new UnauthorizedException("Please login again")
