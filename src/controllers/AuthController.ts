@@ -82,6 +82,8 @@ class AuthController {
 					}
 
 					if ((password ?? "").toString().trim() !== "") {
+						console.log(`password`, password)
+						console.log(`user.password`, user.password)
 						// check if account active or not
 						if ((user.password ?? "").trim() !== "") {
 							// throw new UnauthorizedException(
