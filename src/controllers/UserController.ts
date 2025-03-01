@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt"
 import {NextFunction, Request, Response} from "express"
 
 import {listAPIPayload} from "../helpers"
@@ -79,6 +80,16 @@ class UserController {
 					})
 					if (!existingUser) {
 						throw new BadRequestException("User doesn't exist")
+					}
+
+					// hash password
+					if ((restPayload?.password ?? "").trim() !== "") {
+						const encryptedPassword: string = await bcrypt.hash(
+							restPayload.password,
+							parseInt(process.env.SALT_ROUNDS as string)
+						)
+
+						restPayload.password = encryptedPassword
 					}
 
 					// update user
