@@ -12,5 +12,6 @@ export class DocumentRouter {
 			.post("/faq", DocumentController.faq)
 			.post("/privacy-policy", DocumentController.privacyPolicy)
 			.post("/tnc", DocumentController.tnc)
+			.post("/help-and-support", DocumentController.helpAndSupport)
 	}
 }
