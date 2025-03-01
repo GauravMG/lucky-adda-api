@@ -156,7 +156,7 @@ class AuthController {
 		try {
 			const response = new ApiResponse(res)
 
-			const {mobile, verificationType, isResend} = req.body
+			const {mobile, verificationType, isResend, isForgotPassword} = req.body
 
 			const otp: string = generateOTP(6)
 
@@ -195,7 +195,7 @@ class AuthController {
 					}
 
 					// mark previous hash as used
-					if (!isPersonalInfoCompleted) {
+					if (!isPersonalInfoCompleted || isForgotPassword) {
 						await this.commonModelVerification.softDeleteByFilter(
 							transaction,
 							{userId, verificationType},
@@ -228,7 +228,7 @@ class AuthController {
 			// send sms
 			let smsText: string = ""
 			let message: string = ""
-			if (!user.isPersonalInfoCompleted) {
+			if (!user.isPersonalInfoCompleted || isForgotPassword) {
 				switch (verificationType) {
 					case VerificationType.Login_OTP:
 						smsText =
@@ -262,6 +262,7 @@ class AuthController {
 					mobile,
 					roleId: user.roleId,
 					isPersonalInfoCompleted: user.isPersonalInfoCompleted,
+					isForgotPassword,
 					otp: user.isPersonalInfoCompleted ? null : otp
 				}
 			})
