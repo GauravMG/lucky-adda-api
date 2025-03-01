@@ -226,6 +226,10 @@ class GameController {
 				.tz("Asia/Kolkata")
 				.add(60, "minutes")
 				.format("HH:mm:ss")
+			const currentTimeSub1Hour = dayjs()
+				.tz("Asia/Kolkata")
+				.subtract(60, "minutes")
+				.format("HH:mm:ss")
 			const startOfDay = dayjs().utc().startOf("day").toISOString()
 			const endOfDay = dayjs().utc().endOf("day").toISOString()
 
@@ -235,7 +239,7 @@ class GameController {
 					customFilters.push({
 						AND: [
 							{endTime: {lte: currentTime}},
-							{resultTime: {gte: currentTimePlus1Hour}}
+							{resultTime: {gte: currentTimeSub1Hour}}
 						]
 					}) // resultTime has passed
 				}
