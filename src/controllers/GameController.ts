@@ -233,7 +233,7 @@ class GameController {
 			if (filter?.resultStatus && Array.isArray(filter.resultStatus)) {
 				if (filter.resultStatus.includes("live")) {
 					customFilters.push({
-						and: [
+						AND: [
 							{endTime: {lte: currentTime}},
 							{resultTime: {gte: currentTimePlus1Hour}}
 						]
