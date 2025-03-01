@@ -232,7 +232,12 @@ class GameController {
 			// Handle resultStatus filtering
 			if (filter?.resultStatus && Array.isArray(filter.resultStatus)) {
 				if (filter.resultStatus.includes("live")) {
-					customFilters.push({endTime: {lte: currentTime}}) // resultTime has passed
+					customFilters.push({
+						and: [
+							{endTime: {lte: currentTime}},
+							{resultTime: {gte: currentTimePlus1Hour}}
+						]
+					}) // resultTime has passed
 				}
 				if (filter.resultStatus.includes("upcoming")) {
 					customFilters.push({endTime: {gt: currentTime}}) // resultTime in the future
