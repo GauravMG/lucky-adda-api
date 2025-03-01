@@ -113,6 +113,8 @@ class AuthController {
 								}
 							}
 						)
+						console.log(`otp`, otp)
+						console.log(`otpResult`, otpResult)
 
 						if (!otpResult) {
 							throw new UnauthorizedException("Please generate OTP again")
