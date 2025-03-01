@@ -8,11 +8,10 @@ export class AuthRouter {
 	constructor() {
 		this.router = express.Router()
 		this.router
+			.post("/send-otp", AuthController.sendOTP)
 			.post("/sign-in-with-otp", AuthController.signInWithOTP)
 			.post("/get-me", AuthController.getMe)
 			.post("/refresh-token", AuthController.refreshToken)
 			.post("/logout", AuthController.logout)
-
-			.post("/send-otp", AuthController.sendOTP)
 	}
 }

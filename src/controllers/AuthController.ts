@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt"
 import {NextFunction, Request, Response} from "express"
 import jwt from "jsonwebtoken"
 import path from "path"
@@ -10,7 +11,6 @@ import {
 } from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
-import {sendSMS} from "../lib/SMSService"
 import {BadRequestException, UnauthorizedException} from "../lib/exceptions"
 import CommonModel from "../models/CommonModel"
 import {Role, VerificationType} from "../types/auth"
@@ -46,18 +46,17 @@ class AuthController {
 			[]
 		)
 
+		this.sendOTP = this.sendOTP.bind(this)
 		this.signInWithOTP = this.signInWithOTP.bind(this)
 		this.getMe = this.getMe.bind(this)
 		this.refreshToken = this.refreshToken.bind(this)
 		this.logout = this.logout.bind(this)
-
-		this.sendOTP = this.sendOTP.bind(this)
 	}
 
 	private async validateUserAccount({
-		password,
-		otp,
 		verificationType,
+		otp,
+		password,
 		...restPayload
 	}: any) {
 		try {
@@ -80,6 +79,24 @@ class AuthController {
 					user = {
 						...user,
 						role
+					}
+
+					if ((password ?? "").toString().trim() !== "") {
+						// check if account active or not
+						if ((user.password ?? "").trim() !== "") {
+							// throw new UnauthorizedException(
+							// 	"Account not yet verified. Please check your registered email id for verification email sent to you at the time of creation of your account."
+							// )
+
+							// check if password matches
+							const isValidPassword: boolean = await bcrypt.compare(
+								password,
+								user.password
+							)
+							if (!isValidPassword) {
+								throw new UnauthorizedException("Incorrect password")
+							}
+						}
 					}
 
 					if ((otp ?? "").toString().trim() !== "") {
@@ -135,16 +152,143 @@ class AuthController {
 		}
 	}
 
+	public async sendOTP(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {mobile, verificationType, isResend} = req.body
+
+			const otp: string = generateOTP(6)
+
+			const [user] = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					let isPersonalInfoCompleted: boolean = true
+
+					// check if mobile exists
+					let [existingUser] = await this.commonModelUser.list(transaction, {
+						filter: {
+							mobile
+						}
+					})
+					if (!existingUser) {
+						existingUser = await this.commonModelUser.bulkCreate(transaction, [
+							{
+								roleId: Role.USER,
+								mobile
+							}
+						])
+						existingUser = existingUser[0]
+						isPersonalInfoCompleted = false
+					}
+
+					const {userId} = existingUser
+
+					if ((existingUser.referralCode ?? "").trim() === "") {
+						const referralCode: string = generateReferralCode(userId)
+						await this.commonModelUser.updateById(
+							transaction,
+							{referralCode},
+							userId,
+							userId
+						)
+						existingUser.referralCode = referralCode
+					}
+
+					// mark previous hash as used
+					if (!isPersonalInfoCompleted) {
+						await this.commonModelVerification.softDeleteByFilter(
+							transaction,
+							{userId, verificationType},
+							userId
+						)
+
+						await this.commonModelVerification.bulkCreate(
+							transaction,
+							[
+								{
+									userId,
+									hash: otp.toString(),
+									verificationType
+								}
+							],
+							userId
+						)
+					}
+
+					return [{...existingUser, isPersonalInfoCompleted}]
+				}
+			)
+
+			if (!user.status) {
+				throw new UnauthorizedException(
+					"Your account is in-active. Please contact admin."
+				)
+			}
+
+			// send sms
+			let smsText: string = ""
+			let message: string = ""
+			if (!user.isPersonalInfoCompleted) {
+				switch (verificationType) {
+					case VerificationType.Login_OTP:
+						smsText =
+							readFileContent(
+								path.join(
+									process.cwd(),
+									`views/sms/en/${snakeToKebab(verificationType)}.txt`
+								),
+								{otp}
+							) ?? ""
+						message = `A SMS has been ${isResend ? "re" : ""}sent on your mobile number.`
+
+						break
+
+					default:
+						smsText =
+							readFileContent(
+								path.join(process.cwd(), `views/sms/en/default-otp.txt`),
+								{otp}
+							) ?? ""
+						message = `A SMS has been ${isResend ? "re" : ""}sent on your mobile number.`
+
+						break
+				}
+				// sendSMS([{mobile, message: smsText}])
+			}
+
+			return response.successResponse({
+				message,
+				data: {
+					mobile,
+					roleId: user.roleId,
+					isPersonalInfoCompleted: user.isPersonalInfoCompleted,
+					otp: user.isPersonalInfoCompleted ? null : otp
+				}
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+
 	public async signInWithOTP(req: Request, res: Response, next: NextFunction) {
 		try {
 			const response = new ApiResponse(res)
 
-			const {mobile, otp, deviceType, deviceId, fcmToken} = req.body
+			const {
+				verificationType,
+				mobile,
+				otp,
+				password,
+				deviceType,
+				deviceId,
+				fcmToken
+			} = req.body
 
 			const user = await this.validateUserAccount({
 				filter: {mobile},
+				verificationType: verificationType ?? VerificationType.Login_OTP,
 				otp,
-				verificationType: VerificationType.Login_OTP
+				password
 			})
 			const {userId} = user
 
@@ -290,116 +434,6 @@ class AuthController {
 
 			return response.successResponse({
 				message: `Logged out successfully`
-			})
-		} catch (error) {
-			next(error)
-		}
-	}
-
-	public async sendOTP(req: Request, res: Response, next: NextFunction) {
-		try {
-			const response = new ApiResponse(res)
-
-			const {mobile, verificationType, isResend} = req.body
-
-			const otp: string = generateOTP(6)
-
-			const [user] = await prisma.$transaction(
-				async (transaction: PrismaClientTransaction) => {
-					// check if mobile exists
-					let [existingUser] = await this.commonModelUser.list(transaction, {
-						filter: {
-							mobile
-						}
-					})
-					if (!existingUser) {
-						existingUser = await this.commonModelUser.bulkCreate(transaction, [
-							{
-								roleId: Role.USER,
-								mobile
-							}
-						])
-						existingUser = existingUser[0]
-					}
-
-					const {userId} = existingUser
-
-					if ((existingUser.referralCode ?? "").trim() === "") {
-						const referralCode: string = generateReferralCode(userId)
-						await this.commonModelUser.updateById(
-							transaction,
-							{referralCode},
-							userId,
-							userId
-						)
-						existingUser.referralCode = referralCode
-					}
-
-					// mark previous hash as used
-					await this.commonModelVerification.softDeleteByFilter(
-						transaction,
-						{userId, verificationType},
-						userId
-					)
-
-					await this.commonModelVerification.bulkCreate(
-						transaction,
-						[
-							{
-								userId,
-								hash: otp.toString(),
-								verificationType
-							}
-						],
-						userId
-					)
-
-					return [existingUser]
-				}
-			)
-
-			if (!user.status) {
-				throw new UnauthorizedException(
-					"Your account is in-active. Please contact admin."
-				)
-			}
-
-			// send sms
-			let smsText: string = ""
-			let message: string = ""
-			switch (verificationType) {
-				case VerificationType.Login_OTP:
-					smsText =
-						readFileContent(
-							path.join(
-								process.cwd(),
-								`views/sms/en/${snakeToKebab(verificationType)}.txt`
-							),
-							{otp}
-						) ?? ""
-					message = `A SMS has been ${isResend ? "re" : ""}sent on your mobile number.`
-
-					break
-
-				default:
-					smsText =
-						readFileContent(
-							path.join(process.cwd(), `views/sms/en/default-otp.txt`),
-							{otp}
-						) ?? ""
-					message = `A SMS has been ${isResend ? "re" : ""}sent on your mobile number.`
-
-					break
-			}
-			// sendSMS([{mobile, message: smsText}])
-
-			return response.successResponse({
-				message,
-				data: {
-					mobile,
-					roleId: user.roleId,
-					otp
-				}
 			})
 		} catch (error) {
 			next(error)
