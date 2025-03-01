@@ -263,7 +263,7 @@ class AuthController {
 					roleId: user.roleId,
 					isPersonalInfoCompleted: user.isPersonalInfoCompleted,
 					isForgotPassword,
-					otp: user.isPersonalInfoCompleted ? null : otp
+					otp: !user.isPersonalInfoCompleted || isForgotPassword ? otp : null
 				}
 			})
 		} catch (error) {
