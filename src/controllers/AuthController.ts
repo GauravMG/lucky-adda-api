@@ -197,25 +197,23 @@ class AuthController {
 					}
 
 					// mark previous hash as used
-					if (!isPersonalInfoCompleted || isForgotPassword) {
-						await this.commonModelVerification.softDeleteByFilter(
-							transaction,
-							{userId, verificationType},
-							userId
-						)
+					await this.commonModelVerification.softDeleteByFilter(
+						transaction,
+						{userId, verificationType},
+						userId
+					)
 
-						await this.commonModelVerification.bulkCreate(
-							transaction,
-							[
-								{
-									userId,
-									hash: otp.toString(),
-									verificationType
-								}
-							],
-							userId
-						)
-					}
+					await this.commonModelVerification.bulkCreate(
+						transaction,
+						[
+							{
+								userId,
+								hash: otp.toString(),
+								verificationType
+							}
+						],
+						userId
+					)
 
 					return [{...existingUser, isPersonalInfoCompleted}]
 				}
