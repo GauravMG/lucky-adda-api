@@ -95,17 +95,29 @@ class GameController {
 			const customFilters: any[] = []
 
 			const currentTime = dayjs().tz("Asia/Kolkata").format("HH:mm")
-			let isFetchLiveGame: boolean = false
-			let liveGameRange: any = null
+			const currentTimePlus1Hour = dayjs()
+				.tz("Asia/Kolkata")
+				.add(60, "minutes")
+				.format("HH:mm:ss")
+			const currentTimeSub1Hour = dayjs()
+				.tz("Asia/Kolkata")
+				.subtract(60, "minutes")
+				.format("HH:mm:ss")
+
+			let gameStatus: string = ""
+			let gameRange: any = null
 
 			if (filter?.gameStatus && Array.isArray(filter.gameStatus)) {
 				if (filter.gameStatus.includes("live")) {
-					isFetchLiveGame = true
-					liveGameRange = {
+					gameStatus = "live"
+					gameRange = {
 						all: true
 					}
 				} else if (filter.gameStatus.includes("upcoming")) {
-					customFilters.push({startTime: {gt: currentTime}})
+					gameStatus = "upcoming"
+					gameRange = {
+						all: true
+					}
 				} else if (filter.gameStatus.includes("past")) {
 					customFilters.push({endTime: {lt: currentTime}})
 				}
@@ -119,7 +131,7 @@ class GameController {
 						this.commonModelGame.list(transaction, {
 							filter,
 							customFilters,
-							range: liveGameRange ?? range,
+							range: gameRange ?? range,
 							sort
 						}),
 
@@ -131,14 +143,26 @@ class GameController {
 					])
 
 					let filteredGames: any = games
-					if (isFetchLiveGame) {
-						filteredGames = games.filter(({startTime, endTime}) => {
-							if (startTime <= endTime) {
-								return startTime <= currentTime && endTime >= currentTime
-							} else {
-								return startTime <= currentTime || endTime >= currentTime
-							}
-						})
+					if (gameStatus !== "") {
+						if (gameStatus === "live") {
+							filteredGames = games.filter(({startTime, endTime}) => {
+								if (startTime <= endTime) {
+									return startTime <= currentTime && endTime >= currentTime
+								} else {
+									return startTime <= currentTime || endTime >= currentTime
+								}
+							})
+						} else if (gameStatus === "upcoming") {
+							filteredGames = games.filter(
+								({startTime, endTime, resultTime}) => {
+									if (startTime <= endTime) {
+										return startTime > currentTime
+									} else {
+										return resultTime < currentTimePlus1Hour
+									}
+								}
+							)
+						}
 
 						if (!range?.all && range?.pageSize) {
 							filteredGames = filteredGames.slice(
