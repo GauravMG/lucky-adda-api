@@ -155,7 +155,7 @@ class GameController {
 						} else if (gameStatus === "upcoming") {
 							filteredGames = games.filter(
 								({startTime, endTime, resultTime}) => {
-									if (startTime <= endTime) {
+									if (startTime > endTime && currentTime < "23:59") {
 										return startTime > currentTime
 									} else {
 										return resultTime < currentTimePlus1Hour
