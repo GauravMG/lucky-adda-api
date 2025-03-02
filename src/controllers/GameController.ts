@@ -153,15 +153,18 @@ class GameController {
 								}
 							})
 						} else if (gameStatus === "upcoming") {
-							filteredGames = games.filter(
-								({startTime, endTime, resultTime}) => {
-									if (startTime > endTime && currentTimePlus1Hour < "23:59") {
-										return startTime > currentTime
-									} else {
-										return resultTime < currentTimePlus1Hour
-									}
+							filteredGames = games.filter(({startTime, resultTime}) => {
+								if (startTime <= resultTime) {
+									return startTime > currentTime
+								} else if (
+									startTime > resultTime &&
+									currentTime <= "23:59:59"
+								) {
+									return startTime > currentTime
+								} else if (startTime > resultTime && currentTime > "23:59:59") {
+									return resultTime < currentTime
 								}
-							)
+							})
 						}
 
 						if (!range?.all && range?.pageSize) {
