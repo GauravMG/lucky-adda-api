@@ -271,7 +271,7 @@ class GameController {
 					customFilters.push({endTime: {gt: currentTime}}) // resultTime in the future
 				}
 				if (filter.resultStatus.includes("past")) {
-					customFilters.push({resultTime: {lt: currentTimePlus1Hour}}) // resultTime has passed
+					customFilters.push({resultTime: {lt: currentTimeSub1Hour}}) // resultTime has passed
 				}
 
 				delete filter.resultStatus
