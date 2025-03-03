@@ -280,6 +280,7 @@ class WalletController {
 
 					return [
 						combinedWallets
+							.filter((userWallet) => userWallet.totalWinnings > 0)
 							.sort((a, b) => b.totalWinnings - a.totalWinnings)
 							.slice(0, range?.pageSize ?? 10)
 					]
