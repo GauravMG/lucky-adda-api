@@ -26,6 +26,8 @@ class WalletController {
 		this.create = this.create.bind(this)
 		this.list = this.list.bind(this)
 		this.update = this.update.bind(this)
+
+		this.topWinner = this.topWinner.bind(this)
 	}
 
 	public async create(req: Request, res: Response, next: NextFunction) {
@@ -216,6 +218,82 @@ class WalletController {
 			return response.successResponse({
 				message: `Details updated successfully`,
 				data: walletTransaction
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+
+	public async topWinner(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {userId, roleId}: Headers = req.headers
+
+			const {filter, range, sort} = await listAPIPayload(req.body)
+
+			const [data] = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const wallets = await this.commonModelWallet.list(transaction, {
+						filter,
+						range,
+						sort
+					})
+
+					// fetch mapping data
+					const userIds: number[] = wallets.map(({userId}) => userId)
+					const users = await this.commonModelUser.list(transaction, {
+						filter: {
+							userId: userIds
+						}
+					})
+					const userToUserIdMap = new Map(
+						users.map((user) => [user.userId, user])
+					)
+
+					const combinedWallets: any[] = []
+					const combinedWalletUserIds: number[] = []
+
+					wallets?.map((wallet) => {
+						if (combinedWalletUserIds.indexOf(wallet.userId) < 0) {
+							combinedWalletUserIds.push(wallet.userId)
+							combinedWallets.push({
+								userId: wallet.userId,
+								user: userToUserIdMap.get(wallet.userId) ?? null,
+								totalWinnings: 0
+							})
+						}
+
+						const userWalletIndex: number = combinedWalletUserIds.indexOf(
+							wallet.userId
+						)
+						if (
+							wallet.transactionType === "credit" &&
+							wallet.approvalStatus === "approved" &&
+							(wallet.remarks ?? "").toLowerCase() === "won in bet"
+						) {
+							combinedWallets[userWalletIndex].totalWinnings += Number(
+								wallet.amount
+							)
+						}
+					})
+
+					return [
+						combinedWallets
+							.sort((a, b) => b.totalWinnings - a.totalWinnings)
+							.slice(0, range?.pageSize ?? 10)
+					]
+				}
+			)
+
+			return response.successResponse({
+				message: `Top Winners`,
+				metadata: {
+					total: 10,
+					page: 1,
+					pageSize: range?.pageSize ?? 10
+				},
+				data
 			})
 		} catch (error) {
 			next(error)

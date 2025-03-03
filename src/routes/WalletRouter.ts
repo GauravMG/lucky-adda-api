@@ -11,5 +11,7 @@ export class WalletRouter {
 			.post("/create", WalletController.create)
 			.post("/list", WalletController.list)
 			.post("/update", WalletController.update)
+
+			.post("/top-winner", WalletController.topWinner)
 	}
 }
