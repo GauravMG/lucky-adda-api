@@ -12,44 +12,25 @@ import {getActiveProvider} from "./NotificationService"
 
 async function sendSmsWithFast2SMS(configuration: Configuration) {
 	try {
-		console.log(`configuration`, JSON.stringify(configuration))
-		console.log(`configuration.host`, configuration.host)
 		if (!configuration?.host || !configuration?.payload?.length) {
 			throw new BadRequestException("Cannot send SMS.")
 		}
 
 		for (let {mobile, message} of configuration.payload) {
-			console.log(
-				`{
-					params: {
-						authorization: configuration.privateKey,
-						message,
-						language: "english",
-						route: "q",
-						numbers: mobile
-					}`,
-				{
+			const response = await axios.get(configuration.host, {
+				params: {
 					authorization: configuration.privateKey,
 					message,
 					language: "english",
 					route: "q",
 					numbers: mobile
+				},
+				headers: {
+					"cache-control": "no-cache"
 				}
-			)
-			// const response = await axios.get(configuration.host, {
-			// 	params: {
-			// 		authorization: configuration.privateKey,
-			// 		message,
-			// 		language: "english",
-			// 		route: "q",
-			// 		numbers: mobile
-			// 	},
-			// 	headers: {
-			// 		"cache-control": "no-cache"
-			// 	}
-			// })
+			})
 
-			// logMessage("access", JSON.stringify(response.data))
+			logMessage("access", JSON.stringify(response.data))
 		}
 	} catch (error: any) {
 		logMessage("error", error?.message.toString())
