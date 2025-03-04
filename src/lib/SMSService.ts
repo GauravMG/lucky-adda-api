@@ -65,6 +65,7 @@ export async function sendSMS(payload: SendSMSPayload[]) {
 			throw new BadRequestException("Cannot send SMS.")
 		}
 
+		console.log(`notificationData`, JSON.stringify(notificationData))
 		const configuration: Configuration = {
 			privateKey: notificationData.configuration?.privateKey,
 			host: notificationData.configuration?.host,
