@@ -17,20 +17,39 @@ async function sendSmsWithFast2SMS(configuration: Configuration) {
 		}
 
 		for (let {mobile, message} of configuration.payload) {
-			const response = await axios.get(configuration.host, {
-				params: {
+			console.log(`configuration`, JSON.stringify(configuration))
+			console.log(`configuration.host`, configuration.host)
+			console.log(
+				`{
+					params: {
+						authorization: configuration.privateKey,
+						message,
+						language: "english",
+						route: "q",
+						numbers: mobile
+					}`,
+				{
 					authorization: configuration.privateKey,
 					message,
 					language: "english",
 					route: "q",
 					numbers: mobile
-				},
-				headers: {
-					"cache-control": "no-cache"
 				}
-			})
+			)
+			// const response = await axios.get(configuration.host, {
+			// 	params: {
+			// 		authorization: configuration.privateKey,
+			// 		message,
+			// 		language: "english",
+			// 		route: "q",
+			// 		numbers: mobile
+			// 	},
+			// 	headers: {
+			// 		"cache-control": "no-cache"
+			// 	}
+			// })
 
-			logMessage("access", JSON.stringify(response.data))
+			// logMessage("access", JSON.stringify(response.data))
 		}
 	} catch (error: any) {
 		logMessage("error", error?.message.toString())
