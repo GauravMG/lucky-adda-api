@@ -12,13 +12,13 @@ import {getActiveProvider} from "./NotificationService"
 
 async function sendSmsWithFast2SMS(configuration: Configuration) {
 	try {
+		console.log(`configuration`, JSON.stringify(configuration))
+		console.log(`configuration.host`, configuration.host)
 		if (!configuration?.host || !configuration?.payload?.length) {
 			throw new BadRequestException("Cannot send SMS.")
 		}
 
 		for (let {mobile, message} of configuration.payload) {
-			console.log(`configuration`, JSON.stringify(configuration))
-			console.log(`configuration.host`, configuration.host)
 			console.log(
 				`{
 					params: {
