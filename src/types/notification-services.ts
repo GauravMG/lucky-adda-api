@@ -12,7 +12,7 @@ type Attachment = Partial<{
 export enum NotificationServices {
 	Mailjet = "mailjet",
 	Google = "google",
-	Tiara = "tiara"
+	Fast2SMS = "fast2sms"
 }
 
 export enum NotificationTypes {

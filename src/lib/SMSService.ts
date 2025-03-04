@@ -10,27 +10,25 @@ import {
 import {logMessage} from "../utils/Logger"
 import {getActiveProvider} from "./NotificationService"
 
-async function sendSmsWithTiara(configuration: Configuration) {
+async function sendSmsWithFast2SMS(configuration: Configuration) {
 	try {
 		if (!configuration?.host || !configuration?.payload?.length) {
 			throw new BadRequestException("Cannot send SMS.")
 		}
 
 		for (let {mobile, message} of configuration.payload) {
-			const response = await axios.post(
-				configuration.host,
-				{
-					from: configuration.from,
-					to: mobile,
-					message: message
+			const response = await axios.get(configuration.host, {
+				params: {
+					authorization: configuration.privateKey,
+					message,
+					language: "english",
+					route: "q",
+					numbers: mobile
 				},
-				{
-					headers: {
-						"Content-Type": "application/json",
-						"Authorization": `Bearer ${configuration.privateKey}`
-					}
+				headers: {
+					"cache-control": "no-cache"
 				}
-			)
+			})
 
 			logMessage("access", JSON.stringify(response.data))
 		}
@@ -57,7 +55,7 @@ export async function sendSMS(payload: SendSMSPayload[]) {
 
 		switch (notificationData.serviceType) {
 			case NotificationTypes.SMS:
-				await sendSmsWithTiara(configuration)
+				await sendSmsWithFast2SMS(configuration)
 				break
 			default:
 				throw new BadRequestException("Cannot send SMS.")

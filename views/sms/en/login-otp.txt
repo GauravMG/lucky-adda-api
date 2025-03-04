@@ -1,1 +1,1 @@
-Please use the following OTP to login in the application: <%- otp -%>
+Your OTP for login is <%- otp -%>. Please do not share this code with anyone. Valid for 10 minutes. - Lucky Adda

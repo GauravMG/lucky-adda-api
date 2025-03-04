@@ -11,6 +11,7 @@ import {
 } from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
+import {sendSMS} from "../lib/SMSService"
 import {BadRequestException, UnauthorizedException} from "../lib/exceptions"
 import CommonModel from "../models/CommonModel"
 import {Role, VerificationType} from "../types/auth"
@@ -82,8 +83,6 @@ class AuthController {
 					}
 
 					if ((password ?? "").toString().trim() !== "") {
-						console.log(`password`, password)
-						console.log(`user.password`, user.password)
 						// check if account active or not
 						if ((user.password ?? "").trim() !== "") {
 							// throw new UnauthorizedException(
@@ -115,8 +114,6 @@ class AuthController {
 								}
 							}
 						)
-						console.log(`otp`, otp)
-						console.log(`otpResult`, otpResult)
 
 						if (!otpResult) {
 							throw new UnauthorizedException("Please generate OTP again")
@@ -237,7 +234,7 @@ class AuthController {
 							readFileContent(
 								path.join(
 									process.cwd(),
-									`views/sms/en/${snakeToKebab(verificationType)}.txt`
+									`views/sms/en/${snakeToKebab(isForgotPassword ? "forgot_password_otp" : verificationType)}.txt`
 								),
 								{otp}
 							) ?? ""
@@ -255,7 +252,7 @@ class AuthController {
 
 						break
 				}
-				// sendSMS([{mobile, message: smsText}])
+				sendSMS([{mobile, message: smsText}])
 			}
 
 			return response.successResponse({
