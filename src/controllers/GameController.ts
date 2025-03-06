@@ -200,8 +200,8 @@ class GameController {
 								} else if (filteredGames[i].endTime >= currentTime) {
 									userBetTimeCondition = {
 										createdAt: {
-											gte: `${previousDate} ${filteredGames[i].startTime}`,
-											lte: `${currentDate} ${filteredGames[i].endTime}`
+											gte: `${previousDate} ${filteredGames[i].startTime}:00`,
+											lte: `${currentDate} ${filteredGames[i].endTime}:00`
 										}
 									}
 								}
