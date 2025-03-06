@@ -186,15 +186,31 @@ class GameController {
 									userBetTimeCondition = {
 										createdAt: {
 											AND: [
-												{gte: `${currentDate} ${filteredGames[i].startTime}`},
-												{lte: `${currentDate} ${filteredGames[i].endTime}`}
+												{
+													gte: dayjs(
+														`${currentDate} ${filteredGames[i].startTime}:00`
+													)
+														.tz("Asia/Kolkata")
+														.toDate()
+												},
+												{
+													lte: dayjs(
+														`${currentDate} ${filteredGames[i].endTime}:00`
+													)
+														.tz("Asia/Kolkata")
+														.toDate()
+												}
 											]
 										}
 									}
 								} else if (filteredGames[i].startTime <= currentTime) {
 									userBetTimeCondition = {
 										createdAt: {
-											gte: `${currentDate} ${filteredGames[i].startTime}`
+											gte: dayjs(
+												`${currentDate} ${filteredGames[i].startTime}:00`
+											)
+												.tz("Asia/Kolkata")
+												.toDate()
 										}
 									}
 								} else if (filteredGames[i].endTime >= currentTime) {
