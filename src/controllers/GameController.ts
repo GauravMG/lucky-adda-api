@@ -94,6 +94,11 @@ class GameController {
 			const {filter, range, sort} = await listAPIPayload(req.body)
 			const customFilters: any[] = []
 
+			const previousDate = dayjs()
+				.tz("Asia/Kolkata")
+				.subtract(1, "days")
+				.format("YYYY-MM-DD")
+			const currentDate = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD")
 			const currentTime = dayjs().tz("Asia/Kolkata").format("HH:mm")
 			const currentTimePlus1Hour = dayjs()
 				.tz("Asia/Kolkata")
@@ -172,6 +177,50 @@ class GameController {
 								(range.page - 1) * range.pageSize,
 								range.pageSize
 							)
+						}
+
+						if (gameStatus === "live") {
+							for (let i = 0; i < filteredGames.length; i++) {
+								let userBetTimeCondition: any = {}
+								if (filteredGames[i].startTime <= filteredGames[i].endTime) {
+									userBetTimeCondition = {
+										createdAt: {
+											AND: [
+												{gte: `${currentDate} ${filteredGames[i].startTime}`},
+												{lte: `${currentDate} ${filteredGames[i].endTime}`}
+											]
+										}
+									}
+								} else if (filteredGames[i].startTime <= currentTime) {
+									userBetTimeCondition = {
+										createdAt: {
+											gte: `${currentDate} ${filteredGames[i].startTime}`
+										}
+									}
+								} else if (filteredGames[i].endTime >= currentTime) {
+									userBetTimeCondition = {
+										createdAt: {
+											OR: [
+												{gte: `${previousDate} ${filteredGames[i].startTime}`},
+												{lte: `${currentDate} ${filteredGames[i].endTime}`}
+											]
+										}
+									}
+								}
+
+								const userBetsCount = await this.commonModelUserBet.list(
+									transaction,
+									{
+										filter: {
+											gameId: filteredGames[i].gameId,
+											...userBetTimeCondition
+										},
+										isCountOnly: true
+									}
+								)
+
+								filteredGames[i].livePlayers = userBetsCount
+							}
 						}
 					}
 
