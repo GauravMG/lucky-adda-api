@@ -230,18 +230,22 @@ class GameController {
 									}
 								}
 
-								const userBetsCount = await this.commonModelUserBet.list(
+								let userBetsCount = await this.commonModelUserBet.list(
 									transaction,
 									{
 										filter: {
 											gameId: filteredGames[i].gameId,
 											...userBetTimeCondition
-										},
-										isCountOnly: true
+										}
 									}
 								)
+								userBetsCount = Array.from(
+									new Map(
+										userBetsCount.map((item) => [item.userId, item])
+									).values()
+								)
 
-								filteredGames[i].livePlayers = userBetsCount
+								filteredGames[i].livePlayers = userBetsCount.length
 							}
 						}
 					}
