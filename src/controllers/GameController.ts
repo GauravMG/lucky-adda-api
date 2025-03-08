@@ -6,7 +6,7 @@ import {NextFunction, Request, Response} from "express"
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-import {listAPIPayload} from "../helpers"
+import {generateRandomNumber, listAPIPayload} from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
 import {BadRequestException} from "../lib/exceptions"
@@ -239,7 +239,8 @@ class GameController {
 									).values()
 								)
 
-								filteredGames[i].livePlayers = userBetsCount.length
+								// filteredGames[i].livePlayers = userBetsCount.length
+								filteredGames[i].livePlayers = generateRandomNumber()
 							}
 						}
 					}
@@ -512,16 +513,23 @@ class GameController {
 
 			const [data] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					const data = await this.commonModelUserBet.bulkCreate(
-						transaction,
-						bets.map((el) => ({
-							userId,
-							gameId,
-							betNumber: el.pair,
-							betAmount: el.amount
-						})),
-						userId
-					)
+					const [[game], data] = await Promise.all([
+						this.commonModelGame.list(transaction, {
+							filter: {gameId}
+						}),
+
+						this.commonModelUserBet.bulkCreate(
+							transaction,
+							bets.map((el) => ({
+								userId,
+								gameId,
+								betNumber: el.pair,
+								betAmount: el.amount,
+								pairType: el.pairType
+							})),
+							userId
+						)
+					])
 
 					let totalAmount: number = 0
 					bets.map((el) => (totalAmount += Number(el.amount)))
@@ -534,7 +542,9 @@ class GameController {
 								transactionType: "debit",
 								amount: totalAmount,
 								approvalStatus: "approved",
-								remarks: "Used for placing bet"
+								remarks: `${(game.name ?? "").trim() !== "" ? `For Bet ${game.name.toUpperCase()}` : "Used for placing bet"}`,
+								gameId,
+								userBetIds: data.map(({betId}) => betId).join(",")
 							}
 						],
 						userId
@@ -606,13 +616,16 @@ class GameController {
 					const gameId = bet.gameId
 					const game = bet.game
 					const createdAt = dayjs(bet.createdAt).format("YYYY-MM-DD") // Group by date
+					const pairType = bet.pairType || "others" // Default to "others" if undefined
 
-					const key = `${gameId}-${createdAt}`
+					const key = `${gameId}-${createdAt}-${pairType}`
+
 					if (!acc[key]) {
 						acc[key] = {
 							gameId,
 							game,
 							createdAt,
+							pairType,
 							bets: []
 						}
 					}
@@ -620,7 +633,10 @@ class GameController {
 					acc[key].bets.push(bet)
 					return acc
 				},
-				{} as Record<string, {gameId: string; createdAt: string; bets: any[]}>
+				{} as Record<
+					string,
+					{gameId: string; createdAt: string; pairType: string; bets: any[]}
+				>
 			)
 
 			// Convert grouped object to an array
@@ -858,7 +874,7 @@ class GameController {
 										resultId: gameResults[i].resultId,
 										transactionType: "credit",
 										amount: Number(winningAmount),
-										remarks: "Won in bet",
+										remarks: "Horray! You Win",
 										approvalStatus: "approved"
 									})
 									walletUserId.push(bet.userId)

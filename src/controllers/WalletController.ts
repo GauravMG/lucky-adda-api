@@ -11,9 +11,13 @@ import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
 class WalletController {
 	private commonModelWallet
 	private commonModelUser
+	private commonModelGame
+	private commonModelUserBet
 
 	private idColumnWallet: string = "walletId"
 	private idColumnUser: string = "userId"
+	private idColumnGame: string = "gameId"
+	private idColumnUserBet: string = "betId"
 
 	constructor() {
 		this.commonModelWallet = new CommonModel("Wallet", this.idColumnWallet, [])
@@ -22,6 +26,12 @@ class WalletController {
 			"fullName",
 			"mobile"
 		])
+		this.commonModelGame = new CommonModel("Game", this.idColumnGame, [])
+		this.commonModelUserBet = new CommonModel(
+			"UserBet",
+			this.idColumnUserBet,
+			[]
+		)
 
 		this.create = this.create.bind(this)
 		this.list = this.list.bind(this)
@@ -100,38 +110,73 @@ class WalletController {
 					])
 
 					// fetch mapping data
-					const userIds: number[] = wallets.map(({userId}) => userId)
-					const users = await this.commonModelUser.list(transaction, {
-						filter: {
-							userId: userIds
+					const userIds: number[] = []
+					const gameIds: number[] = []
+					let userBetIds: number[] = []
+
+					wallets.map((wallet) => {
+						userIds.push(wallet.userId)
+
+						if ((wallet.gameId ?? "").toString().trim() !== "") {
+							gameIds.push(Number(wallet.gameId))
+						}
+
+						if ((wallet.userBetIds ?? "").trim() !== "") {
+							wallet.userBetIds = wallet.userBetIds
+								.split(",")
+								.map((el) => Number(el))
+							userBetIds = userBetIds.concat(wallet.userBetIds)
 						}
 					})
+
+					const [users, games, userBets] = await Promise.all([
+						this.commonModelUser.list(transaction, {
+							filter: {
+								userId: userIds
+							}
+						}),
+
+						this.commonModelGame.list(transaction, {
+							filter: {
+								gameId: gameIds
+							}
+						}),
+
+						this.commonModelUserBet.list(transaction, {
+							filter: {
+								betId: userBetIds
+							}
+						})
+					])
+
 					const userToUserIdMap = new Map(
 						users.map((user) => [user.userId, user])
 					)
-
-					const walletModel = new WalletModel()
-					// const userWallets = await walletModel.getWalletBalanceByUserIds(
-					// 	transaction,
-					// 	{
-					// 		filter: {userIds}
-					// 	}
-					// )
-					// const userWalletToUserIdMap: any = new Map(
-					// 	userWallets.map((userWallet) => [userWallet.userId, userWallet])
-					// )
+					const gameToGameIdMap = new Map(
+						games.map((game) => [game.gameId, game])
+					)
 
 					wallets = wallets.map((wallet) => {
-						// const userWallet = userWalletToUserIdMap.find(
-						// 	(userUserMapping) => userUserMapping.userId === wallet.userId
-						// )
 						const user = userToUserIdMap.get(wallet.userId)
+
+						let userBetIdSet: any = null
+
+						if ((wallet.userBetIds ?? "").trim() !== "") {
+							userBetIdSet = new Set(
+								wallet.userBetIds.split(",").map((el) => Number(el))
+							)
+						}
 
 						return {
 							...wallet,
-							user
-							// currentBalance:
-							// 	userWalletToUserIdMap.get(wallet.userId)?.totalBalance ?? 0
+							user,
+							game:
+								(wallet.gameId ?? "").toString().trim() !== ""
+									? gameToGameIdMap.get(wallet.gameId)
+									: null,
+							userBets:
+								userBets.filter((userBet) => userBetIdSet.has(userBet.betId)) ??
+								[]
 						}
 					})
 

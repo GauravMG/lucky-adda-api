@@ -250,6 +250,7 @@ model Game {
 
   gameResults GameResult[]
   userBets    UserBet[]
+  wallets     Wallet[]
 }
 
 model GameResult {
@@ -281,6 +282,7 @@ model UserBet {
   gameId        Int
   betNumber     String    @db.VarChar(10)
   betAmount     Decimal   @db.Decimal(10, 2)
+  pairType      String?
   betType       BetType?
   betStatus     BetStatus @default(pending)
   winningAmount Decimal   @default(0.00) @db.Decimal(10, 2)
@@ -312,6 +314,9 @@ model Wallet {
   referenceWalletId Int?
   wallet            Wallet?        @relation("SelfReference", fields: [referenceWalletId], references: [walletId], onDelete: Cascade)
   referenceWallets  Wallet[]       @relation("SelfReference")
+  gameId            Int?
+  game              Game?          @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
+  userBetIds        String?
   resultId          Int?
   gameResult        GameResult?    @relation(fields: [resultId], references: [resultId], onDelete: Cascade)
   status            Boolean        @default(true)

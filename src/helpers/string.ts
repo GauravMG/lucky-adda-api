@@ -16,3 +16,7 @@ export const snakeToPascal = (snake: string): string => {
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter of each word
 		.join(" ") // Join all parts without underscores
 }
+
+export function generateRandomNumber() {
+	return Math.floor(Math.random() * (999 - 100 + 1)) + 100
+}
