@@ -180,9 +180,12 @@ class WalletController {
 									? gameToGameIdMap.get(wallet.gameId)
 									: null,
 							userBets:
-								(wallet.userBetIds ?? []).filter((userBet) =>
-									userBetIdSet.has(userBet.betId)
-								) ?? []
+								(
+									(wallet.userBetIds ?? "")
+										.trim()
+										.split(",")
+										.map((el) => Number(el)) ?? []
+								).filter((userBet) => userBetIdSet.has(userBet.betId)) ?? []
 						}
 					})
 
