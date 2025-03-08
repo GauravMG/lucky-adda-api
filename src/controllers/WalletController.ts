@@ -128,6 +128,7 @@ class WalletController {
 							userBetIds = userBetIds.concat(newUserBetIds)
 						}
 					})
+					console.log(`userBetIds`, userBetIds)
 
 					const [users, games, userBets] = await Promise.all([
 						this.commonModelUser.list(transaction, {
@@ -152,6 +153,7 @@ class WalletController {
 								})
 							: []
 					])
+					console.log(`userBets`, JSON.stringify(userBets))
 
 					const userToUserIdMap = new Map(
 						users.map((user) => [user.userId, user])
@@ -159,8 +161,6 @@ class WalletController {
 					const gameToGameIdMap = new Map(
 						games.map((game) => [game.gameId, game])
 					)
-
-					let remainingBalance: number = 0.0
 
 					wallets = wallets.map((wallet) => {
 						const user = userToUserIdMap.get(wallet.userId)
@@ -181,12 +181,9 @@ class WalletController {
 									? gameToGameIdMap.get(wallet.gameId)
 									: null,
 							userBets: userBetIdSet
-								? ((
-										(wallet.userBetIds ?? "")
-											.trim()
-											.split(",")
-											.map((el) => Number(el)) ?? []
-									).filter((userBet) => userBetIdSet.has(userBet.betId)) ?? [])
+								? (userBets.filter((userBet) =>
+										userBetIdSet.has(userBet.betId)
+									) ?? [])
 								: []
 						}
 					})
