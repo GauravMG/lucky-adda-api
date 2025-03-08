@@ -179,13 +179,14 @@ class WalletController {
 								(wallet.gameId ?? "").toString().trim() !== ""
 									? gameToGameIdMap.get(wallet.gameId)
 									: null,
-							userBets:
-								(
-									(wallet.userBetIds ?? "")
-										.trim()
-										.split(",")
-										.map((el) => Number(el)) ?? []
-								).filter((userBet) => userBetIdSet.has(userBet.betId)) ?? []
+							userBets: userBetIdSet
+								? ((
+										(wallet.userBetIds ?? "")
+											.trim()
+											.split(",")
+											.map((el) => Number(el)) ?? []
+									).filter((userBet) => userBetIdSet.has(userBet.betId)) ?? [])
+								: []
 						}
 					})
 
