@@ -349,7 +349,7 @@ class WalletController {
 						if (
 							wallet.transactionType === "credit" &&
 							wallet.approvalStatus === "approved" &&
-							(wallet.remarks ?? "").toLowerCase() === "won in bet"
+							(wallet.gameId ?? "").toString().trim() !== ""
 						) {
 							combinedWallets[userWalletIndex].totalWinnings += Number(
 								wallet.amount
