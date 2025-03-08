@@ -195,8 +195,8 @@ class WalletController {
 						// Sort transactions based on `walletId`
 						walletData.sort((a, b) =>
 							orderDir === "asc"
-								? a.walletId - b.walletId
-								: b.walletId - a.walletId
+								? b.walletId - a.walletId
+								: a.walletId - b.walletId
 						)
 
 						let balance = 0 // Initialize balance
