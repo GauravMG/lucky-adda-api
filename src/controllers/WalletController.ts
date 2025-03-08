@@ -160,6 +160,8 @@ class WalletController {
 						games.map((game) => [game.gameId, game])
 					)
 
+					let remainingBalance: number = 0.0
+
 					wallets = wallets.map((wallet) => {
 						const user = userToUserIdMap.get(wallet.userId)
 
@@ -188,6 +190,34 @@ class WalletController {
 								: []
 						}
 					})
+
+					function calculateWalletBalance(walletData, orderDir = "asc") {
+						// Sort transactions based on `walletId`
+						walletData.sort((a, b) =>
+							orderDir === "asc"
+								? a.walletId - b.walletId
+								: b.walletId - a.walletId
+						)
+
+						let balance = 0 // Initialize balance
+
+						// Iterate through the sorted transactions
+						walletData.forEach((transaction) => {
+							let amount = parseFloat(transaction.amount) // Convert amount to a number
+
+							if (transaction.transactionType === "credit") {
+								balance += amount // Add for credit transactions
+							} else if (transaction.transactionType === "debit") {
+								balance -= amount // Subtract for debit transactions
+							}
+
+							transaction.remainingBalance = balance // Assign calculated balance
+						})
+
+						return walletData
+					}
+
+					wallets = calculateWalletBalance(wallets, "desc")
 
 					return [wallets, total]
 				}
