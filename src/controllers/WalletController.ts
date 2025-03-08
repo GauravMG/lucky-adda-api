@@ -125,7 +125,7 @@ class WalletController {
 							let newUserBetIds = wallet.userBetIds
 								.split(",")
 								.map((el) => Number(el))
-							userBetIds = userBetIds.concat(newUserBetIds.userBetIds)
+							userBetIds = userBetIds.concat(newUserBetIds)
 						}
 					})
 
