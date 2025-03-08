@@ -191,13 +191,9 @@ class WalletController {
 						}
 					})
 
-					function calculateWalletBalance(walletData, orderDir = "asc") {
+					function calculateWalletBalance(walletData) {
 						// Sort transactions based on `walletId`
-						walletData.sort((a, b) =>
-							orderDir === "asc"
-								? b.walletId - a.walletId
-								: a.walletId - b.walletId
-						)
+						walletData.sort((a, b) => a.walletId - b.walletId)
 
 						let balance = 0 // Initialize balance
 
@@ -214,10 +210,12 @@ class WalletController {
 							transaction.remainingBalance = balance // Assign calculated balance
 						})
 
+						walletData.sort((a, b) => b.walletId - a.walletId)
+
 						return walletData
 					}
 
-					wallets = calculateWalletBalance(wallets, "desc")
+					wallets = calculateWalletBalance(wallets)
 
 					return [wallets, total]
 				}
