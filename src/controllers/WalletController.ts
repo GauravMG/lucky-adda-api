@@ -161,6 +161,7 @@ class WalletController {
 
 						let userBetIdSet: any = null
 
+						console.log(`wallet.userBetIds`, wallet.userBetIds)
 						if ((wallet.userBetIds ?? "").trim() !== "") {
 							userBetIdSet = new Set(
 								wallet.userBetIds.split(",").map((el) => Number(el))
