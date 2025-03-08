@@ -136,17 +136,21 @@ class WalletController {
 							}
 						}),
 
-						this.commonModelGame.list(transaction, {
-							filter: {
-								gameId: gameIds
-							}
-						}),
+						gameIds.length
+							? this.commonModelGame.list(transaction, {
+									filter: {
+										gameId: gameIds
+									}
+								})
+							: [],
 
-						this.commonModelUserBet.list(transaction, {
-							filter: {
-								betId: userBetIds
-							}
-						})
+						userBetIds.length
+							? this.commonModelUserBet.list(transaction, {
+									filter: {
+										betId: userBetIds
+									}
+								})
+							: []
 					])
 
 					const userToUserIdMap = new Map(
