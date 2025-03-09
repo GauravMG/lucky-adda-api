@@ -621,10 +621,12 @@ class GameController {
 			let {filter, range, sort} = await listAPIPayload(req.body)
 			filter =
 				filter && Object.keys(filter).length
-					? {
-							...filter,
-							userId
-						}
+					? !filter.userId
+						? {
+								...filter,
+								userId
+							}
+						: filter
 					: {userId}
 
 			const [data, total] = await prisma.$transaction(
