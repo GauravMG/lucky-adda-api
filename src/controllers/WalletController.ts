@@ -46,26 +46,11 @@ class WalletController {
 
 			const {userId, roleId}: Headers = req.headers
 
-			let payload = Array.isArray(req.body) ? req.body : [req.body]
-			for (let i = 0; i < payload.length; i++) {
-				if (
-					payload[i].transactionType === "credit" &&
-					(payload[i].remarks ?? "").trim() === "" &&
-					Number(payload[i].amount) >= 2000
-				) {
-					payload.splice(i + 1, 0, {
-						...payload[i],
-						amount: payload[i].amount / 100,
-						remarks: "Deposit Bonus",
-						approvalStatus: "approved"
-					})
-				}
-			}
-			console.log(`payload`, payload)
+			const payload = Array.isArray(req.body) ? req.body : [req.body]
 
 			const [wallet] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					const wallet = await this.commonModelWallet.bulkCreate(
+					let wallet = await this.commonModelWallet.bulkCreate(
 						transaction,
 						payload.map((el) => ({
 							...el,
@@ -80,6 +65,31 @@ class WalletController {
 						})),
 						userId
 					)
+
+					const newPayload: any[] = []
+					for (let i = 0; i < payload.length; i++) {
+						if (
+							payload[i].transactionType === "credit" &&
+							(payload[i].remarks ?? "").trim() === "" &&
+							Number(payload[i].amount) >= 2000
+						) {
+							newPayload.push({
+								...payload[i],
+								amount: payload[i].amount / 100,
+								remarks: "Deposit Bonus",
+								approvalStatus: "approved"
+							})
+						}
+					}
+
+					if (newPayload.length) {
+						const walletBonus = await this.commonModelWallet.bulkCreate(
+							transaction,
+							newPayload,
+							userId
+						)
+						wallet = [...wallet, ...walletBonus]
+					}
 
 					return [wallet]
 				}
