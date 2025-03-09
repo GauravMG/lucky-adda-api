@@ -44,6 +44,7 @@ class GameController {
 
 		this.create = this.create.bind(this)
 		this.list = this.list.bind(this)
+		this.update = this.update.bind(this)
 		this.delete = this.delete.bind(this)
 
 		this.listGameResults = this.listGameResults.bind(this)
@@ -256,6 +257,54 @@ class GameController {
 					page: range?.page ?? DEFAULT_PAGE,
 					pageSize: range?.pageSize ?? DEFAULT_PAGE_SIZE
 				},
+				data
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+
+	public async update(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {userId, roleId}: Headers = req.headers
+
+			const {gameId, ...restPayload} = req.body
+
+			const [data] = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					// check if game exists
+					const [existingGame] = await this.commonModelGame.list(transaction, {
+						filter: {
+							gameId
+						}
+					})
+					if (!existingGame) {
+						throw new BadRequestException("Game doesn't exist")
+					}
+
+					// update game
+					await this.commonModelGame.updateById(
+						transaction,
+						restPayload,
+						gameId,
+						userId
+					)
+
+					// get updated details
+					const [game] = await this.commonModelGame.list(transaction, {
+						filter: {
+							gameId
+						}
+					})
+
+					return [game]
+				}
+			)
+
+			return response.successResponse({
+				message: `Details updated successfully`,
 				data
 			})
 		} catch (error) {

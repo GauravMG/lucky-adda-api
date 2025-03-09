@@ -10,6 +10,7 @@ export class GameRouter {
 		this.router
 			.post("/create", GameController.create)
 			.post("/list", GameController.list)
+			.post("/update", GameController.update)
 			.post("/delete", GameController.delete)
 
 			.post("/list-result", GameController.listGameResults)
