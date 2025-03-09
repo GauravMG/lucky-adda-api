@@ -46,7 +46,21 @@ class WalletController {
 
 			const {userId, roleId}: Headers = req.headers
 
-			const payload = Array.isArray(req.body) ? req.body : [req.body]
+			let payload = Array.isArray(req.body) ? req.body : [req.body]
+			for (let i = 0; i < payload.length; i++) {
+				if (
+					payload[i].transactionType === "credit" &&
+					(payload[i].remarks ?? "").trim() === "" &&
+					Number(payload[i].amount) >= 2000
+				) {
+					payload.splice(i + 1, 0, {
+						...payload[i],
+						amount: payload[i].amount / 100,
+						remarks: "Deposit Bonus",
+						approvalStatus: "approved"
+					})
+				}
+			}
 
 			const [wallet] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
@@ -60,7 +74,7 @@ class WalletController {
 								(el.remarks ?? "").trim() !== ""
 									? el.remarks
 									: el.transactionType === "credit"
-										? "Added to Wallet"
+										? "Deposit"
 										: "Withdrawn from Wallet"
 						})),
 						userId
@@ -128,7 +142,6 @@ class WalletController {
 							userBetIds = userBetIds.concat(newUserBetIds)
 						}
 					})
-					console.log(`userBetIds`, userBetIds)
 
 					const [users, games, userBets] = await Promise.all([
 						this.commonModelUser.list(transaction, {
@@ -153,7 +166,6 @@ class WalletController {
 								})
 							: []
 					])
-					console.log(`userBets`, JSON.stringify(userBets))
 
 					const userToUserIdMap = new Map(
 						users.map((user) => [user.userId, user])
