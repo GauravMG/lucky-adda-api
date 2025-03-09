@@ -61,6 +61,7 @@ class WalletController {
 					})
 				}
 			}
+			console.log(`payload`, payload)
 
 			const [wallet] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
