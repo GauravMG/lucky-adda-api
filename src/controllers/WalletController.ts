@@ -351,6 +351,8 @@ class WalletController {
 							userId: userIds
 						}
 					})
+					console.log(`userIds`, userIds)
+					console.log(`users`, JSON.stringify(users))
 					const userToUserIdMap = new Map(
 						users.map((user) => [user.userId, user])
 					)
@@ -358,6 +360,7 @@ class WalletController {
 					const combinedWallets: any[] = []
 					const combinedWalletUserIds: number[] = []
 
+					console.log(`wallets`, JSON.stringify(wallets))
 					wallets?.map((wallet) => {
 						if (combinedWalletUserIds.indexOf(wallet.userId) < 0) {
 							combinedWalletUserIds.push(wallet.userId)
@@ -381,6 +384,8 @@ class WalletController {
 							)
 						}
 					})
+
+					console.log(`combinedWallets`, combinedWallets)
 
 					return [
 						combinedWallets
