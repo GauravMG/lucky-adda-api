@@ -373,8 +373,8 @@ class WalletController {
 						)
 						if (
 							wallet.transactionType === "credit" &&
-							wallet.approvalStatus === "approved" &&
-							(wallet.gameId ?? "").toString().trim() !== ""
+							wallet.approvalStatus === "approved"
+							// (wallet.gameId ?? "").toString().trim() !== ""
 						) {
 							combinedWallets[userWalletIndex].totalWinnings += Number(
 								wallet.amount
