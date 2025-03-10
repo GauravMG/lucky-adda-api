@@ -340,7 +340,7 @@ class WalletController {
 				async (transaction: PrismaClientTransaction) => {
 					const wallets = await this.commonModelWallet.list(transaction, {
 						// filter,
-						// range,
+						range: {all: true}
 						// sort
 					})
 
