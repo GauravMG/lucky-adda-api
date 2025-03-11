@@ -105,6 +105,7 @@ class UserController {
 						)
 
 						restPayload.password = encryptedPassword
+						delete restPayload.currentPassword
 					}
 
 					// update user
