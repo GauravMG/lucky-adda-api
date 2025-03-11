@@ -99,6 +99,8 @@ class UserController {
 							(existingUser.password ?? "").trim() !== "" &&
 							encryptedCurrentPassword !== existingUser.password
 						) {
+							console.log(`encryptedCurrentPassword`, encryptedCurrentPassword)
+							console.log(`existingUser.password`, existingUser.password)
 							throw new BadRequestException("Invalid current password")
 						}
 
