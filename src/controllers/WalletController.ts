@@ -111,15 +111,15 @@ class WalletController {
 			const {userId, roleId}: Headers = req.headers
 
 			let {filter, range, sort} = await listAPIPayload(req.body)
-			filter =
-				filter && Object.keys(filter).length
-					? !filter.userId
-						? {
-								...filter,
-								userId
-							}
-						: filter
-					: {userId}
+			// filter =
+			// 	filter && Object.keys(filter).length
+			// 		? !filter.userId
+			// 			? {
+			// 					...filter,
+			// 					userId
+			// 				}
+			// 			: filter
+			// 		: {userId}
 
 			const [wallets, total] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
