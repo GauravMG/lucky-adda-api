@@ -91,16 +91,11 @@ class UserController {
 
 					// hash password
 					if ((restPayload?.password ?? "").trim() !== "") {
-						const encryptedCurrentPassword: string = await bcrypt.hash(
+						const isValidCurrentPassword: boolean = await bcrypt.compare(
 							restPayload.currentPassword,
-							parseInt(process.env.SALT_ROUNDS as string)
+							existingUser.password
 						)
-						if (
-							(existingUser.password ?? "").trim() !== "" &&
-							encryptedCurrentPassword !== existingUser.password
-						) {
-							console.log(`encryptedCurrentPassword`, encryptedCurrentPassword)
-							console.log(`existingUser.password`, existingUser.password)
+						if (!isValidCurrentPassword) {
 							throw new BadRequestException("Invalid current password")
 						}
 
