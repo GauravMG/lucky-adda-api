@@ -1,5 +1,6 @@
 import axios from "axios"
 import {GoogleAuth} from "google-auth-library"
+import path from "path"
 
 import {logMessage} from "../utils/Logger"
 
@@ -21,7 +22,10 @@ type PushNotificationPayload = {
 export async function getAccessToken(): Promise<string> {
 	try {
 		const auth = new GoogleAuth({
-			keyFilename: "../../config/lucky-adda-66b1e-f6b83b3ec518.json",
+			keyFilename: path.join(
+				process.cwd(),
+				"config/lucky-adda-66b1e-72ef48f36735.json"
+			),
 			scopes: ["https://www.googleapis.com/auth/firebase.messaging"]
 		})
 
