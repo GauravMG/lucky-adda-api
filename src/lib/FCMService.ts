@@ -47,6 +47,7 @@ export async function sendPushNotification({
 }): Promise<void> {
 	try {
 		const accessToken = await getAccessToken()
+		console.log(`accessToken`, accessToken)
 
 		const stringifiedData: Record<string, string> = {}
 		if (data) {
@@ -54,6 +55,11 @@ export async function sendPushNotification({
 				stringifiedData[key] = String(data[key]) // Convert values to string
 			})
 		}
+		console.log(`stringifiedData`, stringifiedData)
+		console.log(`token`, token)
+		console.log(`title`, title)
+		console.log(`body`, body)
+		console.log(`FCM_URL`, FCM_URL)
 
 		const message: {message: PushNotificationPayload} = {
 			message: {
@@ -65,6 +71,7 @@ export async function sendPushNotification({
 				data: stringifiedData
 			}
 		}
+		console.log(`message`, JSON.stringify(message))
 
 		const response = await axios.post(FCM_URL, message, {
 			headers: {
@@ -72,6 +79,7 @@ export async function sendPushNotification({
 				"Content-Type": "application/json"
 			}
 		})
+		console.log(`response`, response)
 
 		logMessage(
 			"access",

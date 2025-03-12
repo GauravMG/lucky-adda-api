@@ -10,6 +10,7 @@ import {generateRandomNumber, listAPIPayload} from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
 import {BadRequestException} from "../lib/exceptions"
+import {sendPushNotification} from "../lib/FCMService"
 import CommonModel from "../models/CommonModel"
 import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
 import {logMessage} from "../utils/Logger"
@@ -19,11 +20,13 @@ class GameController {
 	private commonModelGameResult
 	private commonModelUserBet
 	private commonModelWallet
+	private commonModelLoginHistory
 
 	private idColumnGame: string = "gameId"
 	private idColumnGameResult: string = "resultId"
 	private idColumnUserBet: string = "betId"
 	private idColumnWallet: string = "walletId"
+	private idColumnLoginHistory: string = "loginHistoryId"
 
 	constructor() {
 		this.commonModelGame = new CommonModel("Game", this.idColumnGame, [
@@ -41,6 +44,11 @@ class GameController {
 			[]
 		)
 		this.commonModelWallet = new CommonModel("Wallet", this.idColumnWallet, [])
+		this.commonModelLoginHistory = new CommonModel(
+			"LoginHistory",
+			this.idColumnLoginHistory,
+			[]
+		)
 
 		this.create = this.create.bind(this)
 		this.list = this.list.bind(this)
@@ -719,11 +727,18 @@ class GameController {
 
 			const {gameId, resultNumber} = req.body
 
+			const userPushNotificationPayload: any[] = []
+
 			await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					const [existingGameResult] = await this.commonModelGameResult.list(
-						transaction,
-						{
+					const [[game], [existingGameResult], userBets] = await Promise.all([
+						this.commonModelGame.list(transaction, {
+							filter: {
+								gameId
+							}
+						}),
+
+						this.commonModelGameResult.list(transaction, {
 							filter: {
 								gameId,
 								resultType: "open"
@@ -738,8 +753,16 @@ class GameController {
 									orderDir: "desc"
 								}
 							]
-						}
-					)
+						}),
+
+						this.commonModelUserBet.list(transaction, {
+							filter: {
+								gameId,
+								betStatus: "pending"
+							},
+							range: {all: true}
+						})
+					])
 
 					if (
 						existingGameResult &&
@@ -772,77 +795,47 @@ class GameController {
 						userId
 					)
 
-					/* 
-					// Get all bets for this game created today
-					const userBets = await this.commonModelUserBet.list(transaction, {
-						filter: {
-							gameId,
-							betStatus: "pending"
-						},
-						range: {all: true}
-					})
+					const userIds: number[] = userBets.map((userBet) =>
+						Number(userBet.userId)
+					)
 
-					const walletCredits: any[] = []
-					const walletUserId: number[] = []
-
-					const updatedBets = await Promise.all(
-						userBets.map(async (bet) => {
-							let betStatus: string = "lost"
-							let winningAmount = 0.0
-
-							if (bet.betNumber.toString() === resultNumber.toString()) {
-								// Case 1: Exact match
-								betStatus = "won"
-								winningAmount = bet.betAmount * 90
-							} else if (
-								bet.betNumber.startsWith("A") &&
-								bet.betNumber[1] === resultNumber[0]
-							) {
-								// Case 2: Matches 1st digit after removing "A"
-								betStatus = "won"
-								winningAmount = bet.betAmount * 9
-							} else if (
-								bet.betNumber.startsWith("B") &&
-								bet.betNumber[1] === resultNumber[1]
-							) {
-								// Case 3: Matches 2nd digit after removing "B"
-								betStatus = "won"
-								winningAmount = bet.betAmount * 9
-							}
-
-							if (!walletUserId.includes(bet.userId)) {
-								walletCredits.push({
-									userId: bet.userId,
-									resultId: gameResult.resultId,
-									transactionType: "credit",
-									amount: Number(winningAmount),
-									remarks: "Won in bet",
-									approvalStatus: "pending"
-								})
-								walletUserId.push(bet.userId)
-							} else {
-								const walletIndex = walletUserId.indexOf(bet.userId)
-								walletCredits[walletIndex].amount += Number(winningAmount)
-							}
-
-							return this.commonModelUserBet.updateById(
-								transaction,
-								{betStatus, winningAmount},
-								bet.betId
-							)
+					const allPayloadUserLoginHistories =
+						await this.commonModelLoginHistory.list(transaction, {
+							filter: {
+								userId: userIds,
+								deviceType: ["android", "ios"]
+							},
+							range: {all: true}
 						})
-					)
 
-					await this.commonModelWallet.bulkCreate(
-						transaction,
-						walletCredits,
-						userId
-					)
+					allPayloadUserLoginHistories
+						.filter(
+							(allPayloadUserLoginHistory) =>
+								(allPayloadUserLoginHistory.fcmToken ?? "").trim() !== ""
+						)
+						.map(
+							(allPayloadUserLoginHistory) =>
+								allPayloadUserLoginHistory.fcmToken
+						)
+						.map((fcmToken) =>
+							userPushNotificationPayload.push({
+								token: fcmToken,
+								title: `Result Out${(game?.name ?? "").trim() !== "" ? ` for ${game.name}` : ""}`,
+								body: `Result Out${(game?.name ?? "").trim() !== "" ? ` for ${game.name}` : ""}`,
+								data: {}
+							})
+						)
 
-					return [updatedBets]
-					*/
 					return
 				}
+			)
+
+			console.log(
+				`userPushNotificationPayload`,
+				JSON.stringify(userPushNotificationPayload)
+			)
+			userPushNotificationPayload.map((userPushNotification) =>
+				sendPushNotification(userPushNotification)
 			)
 
 			return response.successResponse({
