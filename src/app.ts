@@ -20,6 +20,7 @@ import startCronJobs from "./services/cronService"
 import {validateJWTToken} from "./utils/Jwt"
 import {accessLogStream, logMessage} from "./utils/Logger"
 import {getAccessToken} from "./lib/FCMService"
+import {sendPushNotification} from "./lib/sendPush"
 
 const PORT = process.env.PORT
 const BASE_URL_API = process.env.BASE_URL_API
@@ -77,7 +78,12 @@ startCronJobs()
 app.listen(PORT, async () => {
 	logMessage("access", `Server running on ${BASE_URL_API} on port ${PORT}`)
 	runSeeders()
-	getAccessToken()
-		.then((response) => console.log(`response`, response))
-		.catch((error) => console.log(`error`, error))
+	sendPushNotification(
+		"dfYXuXy3TACW8NfR3-00f1:APA91bFLemx2eJfOS427YeZ0B9Ixe20UpgX19mG4as2ossdAcsx1e5XJEpOymOl0u4qYhrIywCwGzCmuRlUf4hJSW-boVQ4yQ3NupMBbD_7lKRIccYpaJ7Y",
+		"Result Out",
+		"Result Out Now"
+	)
+	// getAccessToken()
+	// 	.then((response) => console.log(`response`, response))
+	// 	.catch((error) => console.log(`error`, error))
 })

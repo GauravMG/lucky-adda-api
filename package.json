@@ -47,6 +47,7 @@
 		"dayjs": "^1.11.13",
 		"dotenv": "^16.4.7",
 		"express": "^4.21.2",
+		"firebase-admin": "^13.2.0",
 		"google-auth-library": "^9.15.1",
 		"helmet": "^8.0.0",
 		"is-json": "^2.0.1",
