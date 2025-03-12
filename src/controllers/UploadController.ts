@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from "express"
 
 import {ApiResponse} from "../lib/APIResponse"
-import {uploadMultipleFiles, uploadSingleFile} from "../lib/Digitalocean"
+// import {uploadMultipleFiles, uploadSingleFile} from "../lib/Digitalocean"
 import {BadRequestException} from "../lib/exceptions"
 
 class UploadController {
@@ -20,7 +20,8 @@ class UploadController {
 
 			const filePath = req.file.path
 
-			const url: string = await uploadSingleFile(filePath)
+			// const url: string = await uploadSingleFile(filePath)
+			const url: string = ""
 
 			return response.successResponse({
 				message: `File uploaded successfully`,
@@ -44,7 +45,8 @@ class UploadController {
 			}))
 
 			// Upload all files to DigitalOcean Spaces
-			const urls: string[] = await uploadMultipleFiles(files)
+			// const urls: string[] = await uploadMultipleFiles(files)
+			const urls: string[] = [""]
 
 			return response.successResponse({
 				message: `Files uploaded successfully`,
