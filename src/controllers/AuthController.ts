@@ -283,6 +283,8 @@ class AuthController {
 				deviceId,
 				fcmToken
 			} = req.body
+			console.log(`fcmToken`, fcmToken)
+			console.log(`fcmToken`, JSON.stringify(fcmToken))
 
 			const user = await this.validateUserAccount({
 				filter: {mobile},
