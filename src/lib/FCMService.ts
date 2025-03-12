@@ -21,11 +21,13 @@ type PushNotificationPayload = {
 export async function getAccessToken(): Promise<string> {
 	try {
 		const auth = new GoogleAuth({
-			scopes: SCOPES
+			keyFilename: "../../config/lucky-adda-66b1e-f6b83b3ec518.json",
+			scopes: ["https://www.googleapis.com/auth/firebase.messaging"]
 		})
 
 		const client = await auth.getClient()
 		const accessToken = await client.getAccessToken()
+		console.log(`accessToken`, accessToken)
 
 		if (!accessToken.token) {
 			throw new Error("Failed to retrieve access token.")
