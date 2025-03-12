@@ -19,6 +19,7 @@ import routes from "./routes/MainRouter"
 import startCronJobs from "./services/cronService"
 import {validateJWTToken} from "./utils/Jwt"
 import {accessLogStream, logMessage} from "./utils/Logger"
+import {getAccessToken} from "./lib/FCMService"
 
 const PORT = process.env.PORT
 const BASE_URL_API = process.env.BASE_URL_API
@@ -76,4 +77,7 @@ startCronJobs()
 app.listen(PORT, async () => {
 	logMessage("access", `Server running on ${BASE_URL_API} on port ${PORT}`)
 	runSeeders()
+	getAccessToken()
+		.then((response) => console.log(`response`, response))
+		.catch((error) => console.log(`error`, error))
 })
