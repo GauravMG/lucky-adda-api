@@ -3,7 +3,8 @@ import admin from "./firebaseAdmin"
 export const sendPushNotification = async (
 	fcmToken: string,
 	title: string,
-	body: string
+	body: string,
+	data: any
 ) => {
 	try {
 		const message = {
@@ -11,7 +12,8 @@ export const sendPushNotification = async (
 			notification: {title, body},
 			data: {
 				type: "alert",
-				message: "This is a background notification"
+				message: title,
+				...data
 			},
 			android: {
 				notification: {sound: "default", channelId: "default-channel-id"}

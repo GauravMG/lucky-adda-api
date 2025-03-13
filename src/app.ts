@@ -78,12 +78,4 @@ startCronJobs()
 app.listen(PORT, async () => {
 	logMessage("access", `Server running on ${BASE_URL_API} on port ${PORT}`)
 	runSeeders()
-	sendPushNotification(
-		"dfYXuXy3TACW8NfR3-00f1:APA91bFLemx2eJfOS427YeZ0B9Ixe20UpgX19mG4as2ossdAcsx1e5XJEpOymOl0u4qYhrIywCwGzCmuRlUf4hJSW-boVQ4yQ3NupMBbD_7lKRIccYpaJ7Y",
-		"Result Out",
-		"Result Out Now"
-	)
-	// getAccessToken()
-	// 	.then((response) => console.log(`response`, response))
-	// 	.catch((error) => console.log(`error`, error))
 })

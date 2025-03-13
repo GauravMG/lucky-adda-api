@@ -339,7 +339,9 @@ class WalletController {
 			const [data] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					const wallets = await this.commonModelWallet.list(transaction, {
-						// filter,
+						filter: {
+							gameId: {not: null}
+						},
 						range: {all: true}
 						// sort
 					})
@@ -374,7 +376,6 @@ class WalletController {
 						if (
 							wallet.transactionType === "credit" &&
 							wallet.approvalStatus === "approved"
-							// (wallet.gameId ?? "").toString().trim() !== ""
 						) {
 							combinedWallets[userWalletIndex].totalWinnings += Number(
 								wallet.amount

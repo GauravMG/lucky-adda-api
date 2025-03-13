@@ -10,7 +10,7 @@ import {generateRandomNumber, listAPIPayload} from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
 import {BadRequestException} from "../lib/exceptions"
-import {sendPushNotification} from "../lib/FCMService"
+import {sendPushNotification} from "../lib/sendPush"
 import CommonModel from "../models/CommonModel"
 import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
 import {logMessage} from "../utils/Logger"
@@ -727,7 +727,12 @@ class GameController {
 
 			const {gameId, resultNumber} = req.body
 
-			const userPushNotificationPayload: any[] = []
+			const userPushNotificationPayload: {
+				token: string
+				title: string
+				body: string
+				data: any
+			}[] = []
 
 			await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
@@ -830,12 +835,13 @@ class GameController {
 				}
 			)
 
-			console.log(
-				`userPushNotificationPayload`,
-				JSON.stringify(userPushNotificationPayload)
-			)
 			userPushNotificationPayload.map((userPushNotification) =>
-				sendPushNotification(userPushNotification)
+				sendPushNotification(
+					userPushNotification.token,
+					userPushNotification.title,
+					userPushNotification.body,
+					userPushNotification.data
+				)
 			)
 
 			return response.successResponse({
