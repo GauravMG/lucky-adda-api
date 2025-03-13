@@ -531,38 +531,6 @@ class WalletController {
 						)
 					}
 
-					await this.commonModelWallet.bulkCreate(
-						transaction,
-						[
-							{
-								userId,
-								transactionType: "debit",
-								amount,
-								approvalStatus: "approved",
-								remarks: "Winnings converted to deposit",
-								isConverted: true
-							},
-							{
-								userId,
-								transactionType: "credit",
-								amount,
-								approvalStatus: "approved",
-								remarks: "Deposit for converted winnings",
-								isConverted: true
-							},
-							{
-								userId,
-								transactionType: "credit",
-								amount: (amount * 2) / 100,
-								approvalStatus: "approved",
-								remarks: "Cashboard bonus for converting winnings",
-								isConverted: true,
-								isBonus: true
-							}
-						],
-						userId
-					)
-
 					const [conversionDebit] = await this.commonModelWallet.bulkCreate(
 						transaction,
 						[
