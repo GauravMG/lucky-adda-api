@@ -13,5 +13,6 @@ export class WalletRouter {
 			.post("/update", WalletController.update)
 
 			.post("/top-winner", WalletController.topWinner)
+			.post("/convert-winning", WalletController.convertWinning)
 	}
 }

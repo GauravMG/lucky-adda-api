@@ -319,6 +319,8 @@ model Wallet {
   userBetIds        String?
   resultId          Int?
   gameResult        GameResult?    @relation(fields: [resultId], references: [resultId], onDelete: Cascade)
+  isConverted       Boolean        @default(false)
+  isBonus           Boolean        @default(false)
   status            Boolean        @default(true)
   createdAt         DateTime       @default(now())
   updatedAt         DateTime?

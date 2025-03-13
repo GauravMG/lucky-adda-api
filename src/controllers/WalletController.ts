@@ -38,6 +38,7 @@ class WalletController {
 		this.update = this.update.bind(this)
 
 		this.topWinner = this.topWinner.bind(this)
+		this.convertWinning = this.convertWinning.bind(this)
 	}
 
 	public async create(req: Request, res: Response, next: NextFunction) {
@@ -77,7 +78,8 @@ class WalletController {
 								...payload[i],
 								amount: payload[i].amount / 100,
 								remarks: "Deposit Bonus",
-								approvalStatus: "approved"
+								approvalStatus: "approved",
+								isBonus: true
 							})
 						}
 					}
@@ -121,6 +123,15 @@ class WalletController {
 			// 			: filter
 			// 		: {userId}
 
+			const stats: any = {
+				totalbalance: 0,
+				totalBonus: 0,
+				totalDeposit: 0,
+				totalWinning: 0,
+				totalWinningConverted: 0,
+				totalWinningBalance: 0
+			}
+
 			const [wallets, total] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					let [wallets, total] = await Promise.all([
@@ -141,7 +152,57 @@ class WalletController {
 					const gameIds: number[] = []
 					let userBetIds: number[] = []
 
+					let totalDeposit: number = 0
+					let totalBonus: number = 0
+					let totalWinning: number = 0
+					let totalWinningConverted: number = 0
+					let totalWinningBalance: number = 0
+					let totalDebit: number = 0
+					let totalBalance: number = 0
+
 					wallets.map((wallet) => {
+						if (
+							!wallet.isBonus &&
+							wallet.transactionType === "credit" &&
+							wallet.approvalStatus === "approved" &&
+							(wallet.gameId ?? "").toString().trim() === ""
+						) {
+							totalDeposit += Number(wallet.amount)
+						}
+
+						if (
+							wallet.isBonus &&
+							wallet.transactionType === "credit" &&
+							wallet.approvalStatus === "approved"
+						) {
+							totalBonus += Number(wallet.amount)
+						}
+
+						if (
+							!wallet.isBonus &&
+							wallet.transactionType === "credit" &&
+							wallet.approvalStatus === "approved" &&
+							(wallet.gameId ?? "").toString().trim() !== ""
+						) {
+							totalWinning += Number(wallet.amount)
+						}
+
+						if (
+							wallet.isConverted &&
+							wallet.transactionType === "debit" &&
+							wallet.approvalStatus === "approved"
+						) {
+							totalWinningConverted += Number(wallet.amount)
+						}
+
+						if (
+							!wallet.isConverted &&
+							wallet.transactionType === "debit" &&
+							["approved", "pending"].indexOf(wallet.approvalStatus) >= 0
+						) {
+							totalDebit += Number(wallet.amount)
+						}
+
 						userIds.push(wallet.userId)
 
 						if ((wallet.gameId ?? "").toString().trim() !== "") {
@@ -155,6 +216,18 @@ class WalletController {
 							userBetIds = userBetIds.concat(newUserBetIds)
 						}
 					})
+
+					totalWinningBalance = totalWinning - totalWinningConverted
+
+					totalBalance = totalBalance + totalDeposit + totalBonus + totalWinning
+					totalBalance = totalBalance - totalWinningConverted - totalDebit
+
+					stats.totalbalance = totalBalance
+					stats.totalBonus = totalBonus
+					stats.totalDeposit = totalDeposit
+					stats.totalWinning = totalWinning
+					stats.totalWinningConverted = totalWinningConverted
+					stats.totalWinningBalance = totalWinningBalance
 
 					const [users, games, userBets] = await Promise.all([
 						this.commonModelUser.list(transaction, {
@@ -250,6 +323,7 @@ class WalletController {
 					page: range?.page ?? DEFAULT_PAGE,
 					pageSize: range?.pageSize ?? DEFAULT_PAGE_SIZE
 				},
+				stats,
 				data: wallets
 			})
 		} catch (error) {
@@ -400,6 +474,149 @@ class WalletController {
 					pageSize: range?.pageSize ?? 10
 				},
 				data
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+
+	public async convertWinning(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {userId, roleId}: Headers = req.headers
+
+			const {amount} = req.body
+
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const [overallWinnings, conversionDebits] = await Promise.all([
+						this.commonModelWallet.list(transaction, {
+							filter: {
+								userId,
+								transactionType: "credit",
+								approvalStatus: "approved",
+								gameId: {not: null}
+							},
+							range: {all: true}
+						}),
+
+						this.commonModelWallet.list(transaction, {
+							filter: {
+								userId,
+								transactionType: "debit",
+								approvalStatus: "approved",
+								isConverted: true,
+								isBonus: false
+							},
+							range: {all: true}
+						})
+					])
+
+					let totalWinnings: number = 0
+					let totalConversions: number = 0
+
+					overallWinnings.map(
+						(overallWinning) => (totalWinnings += Number(overallWinning.amount))
+					)
+					conversionDebits.map(
+						(conversionDebit) =>
+							(totalConversions += Number(conversionDebit.amount))
+					)
+
+					const balanceWinnings: number = totalWinnings - totalConversions
+					if (balanceWinnings < amount) {
+						throw new BadRequestException(
+							`Not enough winning amount balance to convert. Winning amount balance = ₹ ${balanceWinnings}`
+						)
+					}
+
+					await this.commonModelWallet.bulkCreate(
+						transaction,
+						[
+							{
+								userId,
+								transactionType: "debit",
+								amount,
+								approvalStatus: "approved",
+								remarks: "Winnings converted to deposit",
+								isConverted: true
+							},
+							{
+								userId,
+								transactionType: "credit",
+								amount,
+								approvalStatus: "approved",
+								remarks: "Deposit for converted winnings",
+								isConverted: true
+							},
+							{
+								userId,
+								transactionType: "credit",
+								amount: (amount * 2) / 100,
+								approvalStatus: "approved",
+								remarks: "Cashboard bonus for converting winnings",
+								isConverted: true,
+								isBonus: true
+							}
+						],
+						userId
+					)
+
+					const [conversionDebit] = await this.commonModelWallet.bulkCreate(
+						transaction,
+						[
+							{
+								userId,
+								transactionType: "debit",
+								amount,
+								approvalStatus: "approved",
+								remarks: "Winnings converted to deposit",
+								isConverted: true
+							}
+						],
+						userId
+					)
+
+					const [conversionCredit] = await this.commonModelWallet.bulkCreate(
+						transaction,
+						[
+							{
+								userId,
+								transactionType: "credit",
+								amount,
+								approvalStatus: "approved",
+								remarks: "Deposit for converted winnings",
+								isConverted: true,
+								referenceWalletId: conversionDebit.walletId
+							}
+						],
+						userId
+					)
+
+					const [conversionBonus] = await this.commonModelWallet.bulkCreate(
+						transaction,
+						[
+							{
+								userId,
+								transactionType: "credit",
+								amount: (amount * 2) / 100,
+								approvalStatus: "approved",
+								remarks: "Cashback bonus for converting winnings",
+								isConverted: true,
+								isBonus: true,
+								referenceWalletId: conversionCredit.walletId
+							}
+						],
+						userId
+					)
+
+					return []
+				}
+			)
+
+			return response.successResponse({
+				message: `Winning amount converted to deposit successfully`
 			})
 		} catch (error) {
 			next(error)
