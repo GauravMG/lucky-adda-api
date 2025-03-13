@@ -354,6 +354,56 @@ class WalletController {
 						throw new BadRequestException("Transaction doesn't exist")
 					}
 
+					if (restPayload?.approvalStatus === "approved") {
+						let totalWinning: number = 0
+						let totalWinningConverted: number = 0
+						let totalWinningBalance: number = 0
+
+						const wallets = await this.commonModelWallet.list(transaction, {
+							filter: {
+								userId: existingTransaction.userId
+							},
+							range: {
+								all: true
+							},
+							sort: [
+								{
+									orderBy: "walletId",
+									orderDir: "desc"
+								}
+							]
+						})
+
+						wallets.map((wallet) => {
+							if (
+								!wallet.isBonus &&
+								wallet.transactionType === "credit" &&
+								wallet.approvalStatus === "approved" &&
+								(wallet.gameId ?? "").toString().trim() !== ""
+							) {
+								totalWinning += Number(wallet.amount)
+							}
+
+							if (
+								wallet.isConverted &&
+								wallet.transactionType === "debit" &&
+								wallet.approvalStatus === "approved"
+							) {
+								totalWinningConverted += Number(wallet.amount)
+							}
+						})
+
+						totalWinningBalance = totalWinning - totalWinningConverted
+
+						if (
+							Number(totalWinningBalance) < Number(existingTransaction.amount)
+						) {
+							throw new BadRequestException(
+								"Cannot approve withdraw request as winning balance is low."
+							)
+						}
+					}
+
 					// update transaction
 					await this.commonModelWallet.updateById(
 						transaction,
