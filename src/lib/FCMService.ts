@@ -24,7 +24,7 @@ export async function getAccessToken(): Promise<string> {
 		const auth = new GoogleAuth({
 			keyFilename: path.join(
 				process.cwd(),
-				"config/lucky-adda-66b1e-72ef48f36735.json"
+				"config/lucky-adda-66b1e-6b87fdbb316c.json"
 			),
 			scopes: ["https://www.googleapis.com/auth/firebase.messaging"]
 		})
