@@ -20,7 +20,8 @@ import startCronJobs from "./services/cronService"
 import {validateJWTToken} from "./utils/Jwt"
 import {accessLogStream, logMessage} from "./utils/Logger"
 import {getAccessToken} from "./lib/FCMService"
-import {sendPushNotification} from "./lib/sendPush"
+// import {sendPushNotification} from "./lib/sendPush"
+import {sendPushNotification} from "./lib/FCMService"
 
 const PORT = process.env.PORT
 const BASE_URL_API = process.env.BASE_URL_API
@@ -62,6 +63,30 @@ app.use(morgan("dev")) // Log to console in development
 // Routes
 app.get("/", async (req, res, next) => {
 	res.status(200).send("This is lucky-adda-api repo running...")
+})
+app.get("/send-test-push", async (req, res, next) => {
+	try {
+		const fcmToken = req.query.fcmToken as string
+		// const response = await sendPushNotification(
+		// 	fcmToken ??"evHfa8UvTPShSjQbzURgVM:APA91bGIxEX9zs1AFRj9ub3EBPoY-lvhvLMSEl1I_LTZvOyttbzO0h6MAPbKw5bCwo7YeQM2AcIUGviZblGU9oEN681P0s1Syxo_r2F3VBMT6A7RsV5YklE",
+		// 	"Result Out",
+		// 	"Result Out Now",
+		// 	{}
+		// )
+
+		const response = await sendPushNotification({
+			token: fcmToken,
+			title: `Result Out`,
+			body: `Result Out Now`,
+			data: {
+				// referenceId: loadId
+			}
+		})
+
+		res.json(response)
+	} catch (error) {
+		next(error)
+	}
 })
 app.use(validateJWTToken)
 app.use(routes)

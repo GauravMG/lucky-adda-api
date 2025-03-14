@@ -74,7 +74,11 @@ export async function sendPushNotification({
 					title,
 					body
 				},
-				data: stringifiedData
+				data: {
+					title,
+					body,
+					...stringifiedData
+				}
 			}
 		}
 		console.log(`message`, JSON.stringify(message))

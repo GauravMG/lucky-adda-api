@@ -10,7 +10,8 @@ import {generateRandomNumber, listAPIPayload} from "../helpers"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
 import {BadRequestException} from "../lib/exceptions"
-import {sendPushNotification} from "../lib/sendPush"
+// import {sendPushNotification} from "../lib/sendPush"
+import {sendPushNotification} from "../lib/FCMService"
 import CommonModel from "../models/CommonModel"
 import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
 import {logMessage} from "../utils/Logger"
@@ -836,12 +837,12 @@ class GameController {
 			)
 
 			userPushNotificationPayload.map((userPushNotification) =>
-				sendPushNotification(
-					userPushNotification.token,
-					userPushNotification.title,
-					userPushNotification.body,
-					userPushNotification.data
-				)
+				sendPushNotification({
+					token: userPushNotification.token,
+					title: userPushNotification.title,
+					body: userPushNotification.body,
+					data: userPushNotification.data
+				})
 			)
 
 			return response.successResponse({
