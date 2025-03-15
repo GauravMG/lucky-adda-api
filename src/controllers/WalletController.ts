@@ -158,6 +158,7 @@ class WalletController {
 					let totalWinningConverted: number = 0
 					let totalWinningBalance: number = 0
 					let totalDebit: number = 0
+					let totalWithdraw: number = 0
 					let totalBalance: number = 0
 
 					wallets.map((wallet) => {
@@ -203,6 +204,15 @@ class WalletController {
 							totalDebit += Number(wallet.amount)
 						}
 
+						if (
+							!wallet.isConverted &&
+							wallet.transactionType === "debit" &&
+							["approved", "pending"].indexOf(wallet.approvalStatus) >= 0 &&
+							(wallet.gameId ?? "").toString().trim() === ""
+						) {
+							totalWithdraw += Number(wallet.amount)
+						}
+
 						userIds.push(wallet.userId)
 
 						if ((wallet.gameId ?? "").toString().trim() !== "") {
@@ -217,7 +227,8 @@ class WalletController {
 						}
 					})
 
-					totalWinningBalance = totalWinning - totalWinningConverted
+					totalWinningBalance =
+						totalWinning - totalWinningConverted - totalWithdraw
 
 					totalBalance = totalBalance + totalDeposit + totalBonus + totalWinning
 					totalBalance = totalBalance - totalWinningConverted - totalDebit
