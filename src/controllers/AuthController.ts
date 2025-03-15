@@ -358,8 +358,10 @@ class AuthController {
 			}
 
 			accessToken = accessToken.replace("Bearer ", "").trim()
+			console.log(`accessToken`, accessToken)
 
 			let decodedToken: any = jwt.decode(accessToken)
+			console.log(`decodedToken`, decodedToken)
 			if (!decodedToken) {
 				throw new BadRequestException("Invalid token.", "invalid_token")
 			}
@@ -380,6 +382,9 @@ class AuthController {
 			// generate new token
 			const jwtToken: string = createJWTToken(decodedToken)
 
+			console.log(`user.userId`, user.userId)
+			console.log(`user`, user)
+			console.log(`jwtToken`, jwtToken)
 			await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					// update login history
