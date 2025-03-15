@@ -859,7 +859,6 @@ class GameController {
 				.tz("Asia/Kolkata")
 				.subtract(2, "minutes")
 				.toISOString()
-			console.log(`nowMinus15Minutes`, nowMinus15Minutes)
 
 			await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
@@ -874,7 +873,6 @@ class GameController {
 							}
 						}
 					)
-					console.log(`gameResults`, gameResults)
 
 					for (let i = 0; i < gameResults?.length; i++) {
 						await this.commonModelGameResult.updateById(
@@ -891,7 +889,6 @@ class GameController {
 							},
 							range: {all: true}
 						})
-						console.log(`userBets`, userBets)
 
 						const walletCredits: any[] = []
 						const walletUserId: number[] = []
@@ -945,13 +942,14 @@ class GameController {
 								)
 							})
 						)
-						console.log(`walletCredits`, walletCredits)
 
-						await this.commonModelWallet.bulkCreate(
-							transaction,
-							walletCredits,
-							gameResults[i].createdById
-						)
+						if (walletCredits?.length) {
+							await this.commonModelWallet.bulkCreate(
+								transaction,
+								walletCredits,
+								gameResults[i].createdById
+							)
+						}
 					}
 				}
 			)
