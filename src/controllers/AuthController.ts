@@ -383,6 +383,7 @@ class AuthController {
 			const jwtToken: string = createJWTToken(decodedToken)
 
 			console.log(`user.userId`, user.userId)
+			console.log(`typeof user.userId`, typeof user.userId)
 			console.log(`user`, user)
 			console.log(`jwtToken`, jwtToken)
 			await prisma.$transaction(
@@ -393,6 +394,7 @@ class AuthController {
 						{
 							jwtToken
 						},
+						user.userId,
 						user.userId
 					)
 				}
