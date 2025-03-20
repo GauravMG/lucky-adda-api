@@ -318,6 +318,7 @@ model Wallet {
   game              Game?          @relation(fields: [gameId], references: [gameId], onDelete: Cascade)
   userBetIds        String?
   resultId          Int?
+  imageUrl          String?
   gameResult        GameResult?    @relation(fields: [resultId], references: [resultId], onDelete: Cascade)
   isConverted       Boolean        @default(false)
   isBonus           Boolean        @default(false)
