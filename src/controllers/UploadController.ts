@@ -1,4 +1,5 @@
 import {NextFunction, Request, Response} from "express"
+import path from "path"
 
 import {ApiResponse} from "../lib/APIResponse"
 // import {uploadMultipleFiles, uploadSingleFile} from "../lib/Digitalocean"
@@ -18,10 +19,9 @@ class UploadController {
 				throw new BadRequestException("No file provided")
 			}
 
-			const filePath = req.file.path
+			const filePath: string = path.join("uploads", req.file.filename)
 
-			// const url: string = await uploadSingleFile(filePath)
-			const url: string = ""
+			const url: string = `${process.env.BASE_URL_API}/${filePath}`
 
 			return response.successResponse({
 				message: `File uploaded successfully`,
