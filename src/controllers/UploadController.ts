@@ -1,4 +1,6 @@
 import {NextFunction, Request, Response} from "express"
+import dotenv from "dotenv"
+dotenv.config()
 import path from "path"
 
 import {ApiResponse} from "../lib/APIResponse"
@@ -19,9 +21,9 @@ class UploadController {
 				throw new BadRequestException("No file provided")
 			}
 
-			const paths: string = path.join("uploads", req.file.filename)
+			const filePath: string = path.join("uploads", req.file.filename)
 
-			const url: string = `http://localhost:9001/${paths}`
+			const url: string = `${process.env.BASE_URL_API}/${filePath}`
 
 			return response.successResponse({
 				message: `File uploaded successfully`,
