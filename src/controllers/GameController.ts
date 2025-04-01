@@ -810,7 +810,7 @@ class GameController {
 					const users = await this.commonModelUser.list(transaction, {
 						filter: {
 							userId: userIds,
-							isNotificationsOn: false
+							isNotificationsOn: true
 						},
 						range: {all: true}
 					})
