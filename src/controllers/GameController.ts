@@ -22,12 +22,14 @@ class GameController {
 	private commonModelUserBet
 	private commonModelWallet
 	private commonModelLoginHistory
+	private commonModelUser
 
 	private idColumnGame: string = "gameId"
 	private idColumnGameResult: string = "resultId"
 	private idColumnUserBet: string = "betId"
 	private idColumnWallet: string = "walletId"
 	private idColumnLoginHistory: string = "loginHistoryId"
+	private idColumnUser: string = "userId"
 
 	constructor() {
 		this.commonModelGame = new CommonModel("Game", this.idColumnGame, [
@@ -50,6 +52,7 @@ class GameController {
 			this.idColumnLoginHistory,
 			[]
 		)
+		this.commonModelUser = new CommonModel("User", this.idColumnUser, [])
 
 		this.create = this.create.bind(this)
 		this.list = this.list.bind(this)
@@ -801,9 +804,19 @@ class GameController {
 						userId
 					)
 
-					const userIds: number[] = userBets.map((userBet) =>
+					let userIds: number[] = userBets.map((userBet) =>
 						Number(userBet.userId)
 					)
+					const users = await this.commonModelUser.list(transaction, {
+						filter: {
+							userId: userIds,
+							isNotificationsOn: false
+						},
+						range: {all: true}
+					})
+
+					// re-assigning userIds
+					userIds = users.map((user) => Number(user.userId))
 
 					const allPayloadUserLoginHistories =
 						await this.commonModelLoginHistory.list(transaction, {
