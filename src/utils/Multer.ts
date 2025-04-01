@@ -2,6 +2,10 @@ import {Request} from "express"
 import multer from "multer"
 import path from "path"
 
+function replaceSpecialChars(inputString) {
+	return inputString.replace(/[^a-zA-Z0-9]/g, "-")
+}
+
 // Define storage settings
 const storage = multer.diskStorage({
 	destination: (req: Request, file: Express.Multer.File, cb) => {
@@ -10,7 +14,10 @@ const storage = multer.diskStorage({
 	filename: (req: Request, file: Express.Multer.File, cb) => {
 		const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
 		const extension = path.extname(file.originalname)
-		cb(null, `${file.fieldname}-${uniqueSuffix}${extension}`)
+		cb(
+			null,
+			`${replaceSpecialChars(file.originalname)}-${uniqueSuffix}${extension}`
+		)
 	}
 })
 
@@ -30,7 +37,7 @@ const fileFilter = (
 
 // Set limits for uploaded files
 const limits = {
-	fileSize: 5 * 1024 * 1024 // 5 MB
+	fileSize: 20 * 1024 * 1024 // 20 MB
 }
 
 // Create the Multer instance
