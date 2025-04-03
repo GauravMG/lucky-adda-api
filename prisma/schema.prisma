@@ -89,6 +89,10 @@ model User {
   wallets         Wallet[]
   userBets        UserBet[]
   userBankDetails UserBankDetail[]
+  pppWallets      PPPWallet[]
+  pppSessions                PPPSession[]
+  pppUserBets                PPPUserBet[]
+  pppGameResults              PPPGameResult[]
 
   // Inverse relations
   usersCreatedBy               User[]                @relation("UserCreatedBy")
@@ -124,6 +128,21 @@ model User {
   userBetCreatedBy             UserBet[]             @relation("UserBetCreatedBy")
   userBetUpdatedBy             UserBet[]             @relation("UserBetUpdatedBy")
   userBetDeletedBy             UserBet[]             @relation("UserBetDeletedBy")
+  pppImageCreatedBy              PPPImage[]             @relation("ImageCreatedBy") 
+  pppImageUpdatedBy              PPPImage[]             @relation("ImageUpdatedBy") 
+  pppImageDeletedBy              PPPImage[]             @relation("ImageDeletedBy") 
+  pppSessionCreatedBy         PPPSession[]                       @relation("PPPSessionCreatedBy")                                  
+  pppSessionUpdatedBy         PPPSession[]                       @relation("PPPSessionUpdatedBy") 
+  pppSessionDeletedBy         PPPSession[]                       @relation("PPPSessionDeletedBy") 
+  pppUserBetCreatedBy         PPPUserBet[]                       @relation("PPPUserBetCreatedBy") 
+  pppUserBetUpdatedBy         PPPUserBet[]                       @relation("PPPUserBetUpdatedBy") 
+  pppUserBetDeletedBy         PPPUserBet[]                       @relation("PPPUserBetDeletedBy") 
+  pppGameResultCreatedBy         PPPGameResult[]                       @relation("PPPGameResultCreatedBy") 
+  pppGameResultUpdatedBy         PPPGameResult[]                       @relation("PPPGameResultUpdatedBy") 
+  pppGameResultDeletedBy         PPPGameResult[]                       @relation("PPPGameResultDeletedBy") 
+  pppWalletCreatedBy          PPPWallet[]                        @relation("PPPWalletCreatedBy") 
+  pppWalletUpdatedBy          PPPWallet[]                        @relation("PPPWalletUpdatedBy") 
+  pppWalletDeletedBy          PPPWallet[]                        @relation("PPPWalletDeletedBy") 
 }
 
 model Verification {
@@ -303,7 +322,7 @@ model UserBet {
 }
 
 model Wallet {
-  walletId          Int            @id @default(autoincrement())
+  pppWalletId          Int            @id @default(autoincrement())
   userId            Int
   user              User?          @relation(fields: [userId], references: [userId], onDelete: Cascade)
   transactionType   String         @default("credit")
@@ -333,4 +352,125 @@ model Wallet {
   createdById Int?
   updatedById Int?
   deletedById Int?
+}
+
+model PPPImage {
+  imageId        Int       @id @default(autoincrement())
+  imageUrl       String    @db.VarChar(100)
+  status         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
+  deletedAt      DateTime?
+  createdBy      User?     @relation("ImageCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy      User?     @relation("ImageUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy      User?     @relation("ImageDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  pppUserBets PPPUserBet[]
+  pppGameResults PPPGameResult[] 
+}
+
+model PPPSession {
+  sessionId      Int       @id @default(autoincrement())
+  startTime      String    @db.VarChar(100)
+  endTime        String    @db.VarChar(100)
+  status         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
+  deletedAt      DateTime?
+  createdBy      User?     @relation("PPPSessionCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy      User?     @relation("PPPSessionUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy      User?     @relation("PPPSessionDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  pppUserBets PPPUserBet[]
+  pppWallets PPPWallet[]
+}
+
+model PPPUserBet {
+  userBetId       Int       @id @default(autoincrement())
+  userId          Int
+  sessionId       Int
+  imageId         Int    
+  betAmount       String    @db.VarChar(100)
+  winningAmount   String    @db.VarChar(100)
+  status          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime?
+  deletedAt       DateTime?
+  createdBy       User?     @relation("PPPUserBetCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy       User?     @relation("PPPUserBetUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy       User?     @relation("PPPUserBetDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  user              User?          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  pppSession        PPPSession?    @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  pppImage          PPPImage?      @relation(fields: [imageId], references: [imageId], onDelete: Cascade)
+
+  pppGameResults PPPGameResult[]
+}
+
+model PPPGameResult {
+  resultId     Int        @id @default(autoincrement())
+  sessionId    Int
+  imageId      Int?       // Add the imageId field
+  winningAmount   String    @db.VarChar(100)
+  status       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime?
+  deletedAt    DateTime?
+  createdBy    User?      @relation("PPPGameResultCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy    User?      @relation("PPPGameResultUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy    User?      @relation("PPPGameResultDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+  pppWallets   PPPWallet[]
+
+  pppImage     PPPImage?  @relation(fields: [imageId], references: [imageId], onDelete: SetNull) // Add relation to PPPImage
+}
+
+model PPPWallet {
+  pppWalletId       Int            @id @default(autoincrement())
+  userId            Int
+  user              User?          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  transactionType   String         @default("credit")
+  amount            Decimal        @db.Decimal(10, 2)
+  approvalStatus    ApprovalStatus @default(pending)
+  remarks           String?
+  approvalRemarks   String?        
+  userBetIds        String?
+  resultId          Int?
+  sessionId         Int?
+  pppGameResult     PPPSession? @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  imageUrl          String?
+  pppGameResult     PPPGameResult? @relation(fields: [resultId], references: [resultId], onDelete: Cascade)
+  isConverted       Boolean        @default(false)
+  status            Boolean        @default(true)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime?
+  deletedAt         DateTime?
+  createdBy         User?          @relation("PPPWalletCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy         User?          @relation("PPPWalletUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy         User?          @relation("PPPWalletDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+
+   referenceWalletId Int?
+  pppWallets            PPPWallet?        @relation("SelfReference", fields: [pppReferenceWalletId], references: [pppWalletId], onDelete: Cascade)
+
+  pppReferenceWallets  PPPWallet[]       @relation("SelfReference")
 }
