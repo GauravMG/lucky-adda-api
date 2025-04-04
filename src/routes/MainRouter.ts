@@ -10,7 +10,10 @@ import {
 	UploadRouter,
 	UserBankDetailRouter,
 	UserRouter,
-	WalletRouter
+	WalletRouter,
+	PPPImageRouter,
+	PPPSessionRouter,
+	PPPUserBetRouter
 } from "."
 
 const router = express.Router()
@@ -36,5 +39,10 @@ router.use("/v1/app-setting", new AppSettingRouter().router)
 
 // game routes
 router.use("/v1/game", new GameRouter().router)
+
+// ppp games
+router.use("/v1/ppp-image", new PPPImageRouter().router)
+router.use("/v1/ppp-session", new PPPSessionRouter().router)
+router.use("/v1/ppp-bet", new PPPUserBetRouter().router)
 
 export default router

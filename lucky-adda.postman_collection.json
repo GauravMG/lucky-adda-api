@@ -1,0 +1,1646 @@
+{
+	"info": {
+		"_postman_id": "00f6b6ff-1528-4a1e-94ed-db762e176163",
+		"name": "lucky-adda",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26057530"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "sign-in-with-otp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mobile\": \"8700800060\",\n    \"otp\": \"\",\n    \"deviceType\": \"web\",\n    \"deviceId\": \"123456\",\n    \"fcmToken\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/auth/sign-in-with-otp",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"sign-in-with-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-me",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/auth/get-me",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"get-me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh-token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/auth/refresh-token",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/auth/logout",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send-otp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mobile\": \"8285348403\",\n    \"verificationType\": \"login_otp\",\n    \"isResend\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/auth/send-otp",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"send-otp"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "role",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n        \"search\": \"admin\"\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"roleId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/role/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"role",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": 4,\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/role/update",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"role",
+								"update"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ppp images",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n       \n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"imageId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-image/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-image",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"imageId\": 2,\n    \"imageUrl\": \"http://localhost:9001/uploads/simpleImage-jpg-1743793939561-708402408.jpg\",\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-image/update",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-image",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"imageIds\": [3,4],\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-image/delete",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-image",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"imageUrl\": \"http://localhost:9001/uploads/monkey-profile-jpg-1743793048087-627690455.jpg\",\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-image/create",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-image",
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ppp sessions",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n       \n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"sessionId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-session/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-session",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sessionId\": 4,\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-session/update",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-session",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sessionIds\": [4]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-session/delete",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-session",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startTime\": \"02:30\",\n    \"endTime\": \"02:40\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-session/create",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-session",
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ppp user bet",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n        \"betStatus\": \"pending\"\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"sessionId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-bet/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-bet",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "place bet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sessionId\": 2, \n    \"imageIds\": [1,3],\n    \"betAmount\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/ppp-bet/place",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"ppp-bet",
+								"place"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"userId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/user/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"fullName\": \"Admin 1\",\n    \"dob\": \"1996-03-17\",\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/user/update",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userIds\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/user/updadeletete",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"user",
+								"updadeletete"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "document",
+			"item": [
+				{
+					"name": "contact-detail",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/document/contact-detail",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"document",
+								"contact-detail"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "faq",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/document/faq",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"document",
+								"faq"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "privacy-policy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/document/privacy-policy",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"document",
+								"privacy-policy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tnc",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/document/tnc",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"document",
+								"tnc"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "notification",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczNzcxMTU1NiwiZXhwIjoxNzM3NzE1MTU2fQ.jQOFbjDWUMMdGY7V8b6ggP1EDn5K3JHEUzgqJxH4JB8"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 2,\n    \"module\": \"test module\",\n    \"screenName\": \"test screen name\",\n    \"payload\": \"test payload\",\n    \"title\": \"test  title\",\n    \"icon\": \"test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/notification/create",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"notification",
+								"create"
+							]
+						},
+						"description": "Generated from cURL: curl --location --request POST 'http://localhost:5001/v1/notification/create' \\\n--header 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczNzcxMTU1NiwiZXhwIjoxNzM3NzE1MTU2fQ.jQOFbjDWUMMdGY7V8b6ggP1EDn5K3JHEUzgqJxH4JB8' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n\"userId\": 2,\n\"module\": \"test module\",\n\"screenName\": \"test screen name\",\n\"payload\": \"test payload\",\n\"title\": \"test  title\",\n\"icon\": \"test\"\n}'"
+					},
+					"response": []
+				},
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUzLCJpYXQiOjE3Mzc3MDM5NjIsImV4cCI6MTczNzc5MDM2Mn0.61TSJQi7eA4N_dM2-YfooGspbtejwdCSQ_RSeivDQvY",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"createdAt\",\n            \"orderDir\": \"desc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/notification/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"notification",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczNzcxMTU1NiwiZXhwIjoxNzM3NzE1MTU2fQ.jQOFbjDWUMMdGY7V8b6ggP1EDn5K3JHEUzgqJxH4JB8"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userNotificationId\": 11,\n    \"module\": \"test module\",\n    \"screenName\": \"test module\",\n    \"payload\": \"test module\",\n    \"title\": \"test module title\",\n    \"description\": \"test module test module test moduletest\",\n    \"icon\": \"test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/notification/update",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"notification",
+								"update"
+							]
+						},
+						"description": "Generated from cURL: curl --location --request POST 'http://localhost:5001/v1/notification/update' \\\n--header 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczNzcxMTU1NiwiZXhwIjoxNzM3NzE1MTU2fQ.jQOFbjDWUMMdGY7V8b6ggP1EDn5K3JHEUzgqJxH4JB8' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n\"userNotificationId\": 11,\n\"module\": \"test module\",\n\"screenName\": \"test module\",\n\"payload\": \"test module\",\n\"title\": \"test module title\",\n\"description\": \"test module test module test moduletest\",\n\"icon\": \"test\"\n}'"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczNzcxMTU1NiwiZXhwIjoxNzM3NzE1MTU2fQ.jQOFbjDWUMMdGY7V8b6ggP1EDn5K3JHEUzgqJxH4JB8"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userNotificationIds\": [\n        5,\n        6\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/notification/delete",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"notification",
+								"delete"
+							]
+						},
+						"description": "Generated from cURL: curl --location --request POST 'http://localhost:5001/v1/notification/delete' \\\n--header 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTczNzcxMTU1NiwiZXhwIjoxNzM3NzE1MTU2fQ.jQOFbjDWUMMdGY7V8b6ggP1EDn5K3JHEUzgqJxH4JB8' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"userNotificationIds\": [5,6]\n}'"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "wallet",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN_BROKER}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"transactionType\": \"credit\",\n    \"amount\": 250\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/wallet/create",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"wallet",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN_BROKER}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"walletId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/wallet/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"wallet",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"walletId\": 1,\n    \"approvalStatus\": \"rejected\",\n    \"approvalRemarks\": \"testing\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/wallet/update",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"wallet",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "top-winner",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/wallet/top-winner",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"wallet",
+								"top-winner"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "upload",
+			"item": [
+				{
+					"name": "single",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/sonu/Pictures/simpleImage.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/upload/single",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"upload",
+								"single"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "game",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test\",\n    \"city\": \"test\",\n    \"logo\": \"test\",\n    \"startTime\": \"test\",\n    \"endTime\": \"test\",\n    \"resultTime\": \"test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/create",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n        \"gameId\": 17\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"gameId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/list",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameIds\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/delete",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-result",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n        \"resultStatus\": [\"live\"]\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 4\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"startTime\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/list-result",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"list-result"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-result-chart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n        \"resultMonth\": \"2025-02\",\n        \"gameId\": 25\n    },\n    \"range\": {\n        \"page\": 1,\n        \"pageSize\": 10\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"gameId\",\n            \"orderDir\": \"asc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/list-result-chart",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"list-result-chart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save-user-bet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN_BROKER}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": 51,\n    \"bets\": [\n        {\n            \"pair\": \"00\",\n            \"amount\": 10\n        },\n        {\n            \"pair\": \"25\",\n            \"amount\": 20\n        },\n        {\n            \"pair\": \"52\",\n            \"amount\": 25\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/save-user-bet",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"save-user-bet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-user-bet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN_BROKER}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filter\": {\n    },\n    \"range\": {\n        \"all\": true\n    },\n    \"sort\": [\n        {\n            \"orderBy\": \"createdAt\",\n            \"orderDir\": \"desc\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/list-user-bet",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"list-user-bet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "process-result",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT_TOKEN_BROKER}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": 51\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_BASE_PATH}}/v1/game/process-result",
+							"host": [
+								"{{API_BASE_PATH}}"
+							],
+							"path": [
+								"v1",
+								"game",
+								"process-result"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "https://control.msg91.com/api/v5/flow",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "authkey",
+						"value": "442612A4DKVLTinm67c1780aP1"
+					},
+					{
+						"key": "content-type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"template_id\": \"67c176fdd6fc0577b609d7a3\",\n  \"short_url\": \"0\",\n  \"recipients\": [\n    {\n      \"mobiles\": \"919811154539\",\n      \"VAR1\": \"963258\",\n      \"VAR2\": \"LuckyAdda\"\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://control.msg91.com/api/v5/flow",
+					"protocol": "https",
+					"host": [
+						"control",
+						"msg91",
+						"com"
+					],
+					"path": [
+						"api",
+						"v5",
+						"flow"
+					]
+				},
+				"description": "Generated from cURL: curl --request POST \\\n  --url https://control.msg91.com/api/v5/flow \\\n  --header 'accept: application/json' \\\n  --header 'authkey: Enter your MSG91 authkey' \\\n  --header 'content-type: application/json' \\\n  --data '{\n  \"template_id\": \"EntertemplateID\",\n  \"short_url\": \"1 (On) or 0 (Off)\",\n  \"short_url_expiry\": \"Seconds (Optional)\",\n  \"realTimeResponse\": \"1 (Optional)\", \n  \"recipients\": [\n    {\n      \"mobiles\": \"919XXXXXXXXX\",\n      \"VAR1\": \"VALUE 1\",\n      \"VAR2\": \"VALUE 2\"\n    }\n  ]\n}'"
+			},
+			"response": []
+		},
+		{
+			"name": "https://control.msg91.com/api/v5/sms/getTemplateVersions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "authkey",
+						"value": "442612A4DKVLTinm67c1780aP1"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"template_id\" : \"67c176fdd6fc0577b609d7a3\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://control.msg91.com/api/v5/sms/getTemplateVersions",
+					"protocol": "https",
+					"host": [
+						"control",
+						"msg91",
+						"com"
+					],
+					"path": [
+						"api",
+						"v5",
+						"sms",
+						"getTemplateVersions"
+					]
+				},
+				"description": "Generated from cURL: curl --request POST \\\n  --url https://control.msg91.com/api/v5/sms/getTemplateVersions \\\n  --header 'Content-Type: application/json' \\\n  --header 'accept: application/json' \\\n  --header 'authkey: Enter authkey' \\\n  --data '{\n    \"template_id\" : \"SMS Template ID from MSG91\"\n}'"
+			},
+			"response": []
+		},
+		{
+			"name": "https://www.fast2sms.com/dev/bulkV2?authorization=0J9sBDw3HmfiPUzYIA1CZFKONpg2VXa8t5kGEdrqSue6nQyTMo6LQFgmfoH13ev9RIKScEVCnayj7s2Z&route=q&message=Your%20OTP%20for%20verification%20is%20123456.%20Please%20do%20not%20share%20this%20code%20with%20anyone.%20",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://www.fast2sms.com/dev/bulkV2?authorization=0J9sBDw3HmfiPUzYIA1CZFKONpg2VXa8t5kGEdrqSue6nQyTMo6LQFgmfoH13ev9RIKScEVCnayj7s2Z&route=q&message=Your%20OTP%20for%20verification%20is%20123456.%20Please%20do%20not%20share%20this%20code%20with%20anyone.%20Valid%20for%2010%20minutes.&flash=0&numbers=9811154539&schedule_time=",
+					"protocol": "https",
+					"host": [
+						"www",
+						"fast2sms",
+						"com"
+					],
+					"path": [
+						"dev",
+						"bulkV2"
+					],
+					"query": [
+						{
+							"key": "authorization",
+							"value": "0J9sBDw3HmfiPUzYIA1CZFKONpg2VXa8t5kGEdrqSue6nQyTMo6LQFgmfoH13ev9RIKScEVCnayj7s2Z"
+						},
+						{
+							"key": "route",
+							"value": "q"
+						},
+						{
+							"key": "message",
+							"value": "Your%20OTP%20for%20verification%20is%20123456.%20Please%20do%20not%20share%20this%20code%20with%20anyone.%20Valid%20for%2010%20minutes."
+						},
+						{
+							"key": "flash",
+							"value": "0"
+						},
+						{
+							"key": "numbers",
+							"value": "9811154539"
+						},
+						{
+							"key": "schedule_time",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://fcm.googleapis.com/v1/projects/<PROJECT_ID>/messages:send",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer $ACCESS_TOKEN"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"message\": {\n    \"token\": \"<FCM_DEVICE_TOKEN>\",\n    \"notification\": {\n      \"title\": \"Hello from FCM v1\",\n      \"body\": \"This is a test push notification!\"\n    },\n    \"data\": {\n      \"customDataKey\": \"customDataValue\"\n    },\n    \"android\": {\n      \"priority\": \"high\",\n      \"notification\": {\n        \"sound\": \"default\",\n        \"click_action\": \"FLUTTER_NOTIFICATION_CLICK\"\n      }\n    },\n    \"apns\": {\n      \"payload\": {\n        \"aps\": {\n          \"sound\": \"default\",\n          \"content-available\": 1\n        }\n      }\n    }\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://fcm.googleapis.com/v1/projects/<PROJECT_ID>/messages:send",
+					"protocol": "https",
+					"host": [
+						"fcm",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"v1",
+						"projects",
+						"<PROJECT_ID>",
+						"messages:send"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST \"https://fcm.googleapis.com/v1/projects/<PROJECT_ID>/messages:send\" \\\n-H \"Authorization: Bearer $ACCESS_TOKEN\" \\\n-H \"Content-Type: application/json\" \\\n-d '{\n  \"message\": {\n    \"token\": \"<FCM_DEVICE_TOKEN>\",\n    \"notification\": {\n      \"title\": \"Hello from FCM v1\",\n      \"body\": \"This is a test push notification!\"\n    },\n    \"data\": {\n      \"customDataKey\": \"customDataValue\"\n    },\n    \"android\": {\n      \"priority\": \"high\",\n      \"notification\": {\n        \"sound\": \"default\",\n        \"click_action\": \"FLUTTER_NOTIFICATION_CLICK\"\n      }\n    },\n    \"apns\": {\n      \"payload\": {\n        \"aps\": {\n          \"sound\": \"default\",\n          \"content-available\": 1\n        }\n      }\n    }\n  }\n}'\n"
+			},
+			"response": []
+		}
+	]
+}
