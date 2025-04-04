@@ -171,16 +171,16 @@ class PPPSessionController {
 						transaction,
 						{
 							filter: {
-								imageId: sessionIds
+								sessionId: sessionIds
 							}
 						}
 					)
 					if (!existingGames.length) {
 						const sessionIdsSet: Set<number> = new Set(
-							existingGames.map((obj) => obj.imageId)
+							existingGames.map((obj) => obj.sessionId)
 						)
 						throw new BadRequestException(
-							`Selected images(s) not found: ${sessionIds.filter((imageId) => !sessionIdsSet.has(imageId))}`
+							`Selected sessions(s) not found: ${sessionIds.filter((sessionId) => !sessionIdsSet.has(sessionId))}`
 						)
 					}
 

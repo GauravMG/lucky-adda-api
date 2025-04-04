@@ -67,11 +67,9 @@ class PPPImageController {
 		try {
 			const response = new ApiResponse(res)
 
-			const {roleId}: Headers = req.headers
-
 			const {filter, range, sort} = await listAPIPayload(req.body)
 
-			const [roles, total] = await prisma.$transaction(
+			const [images, total] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					return await Promise.all([
 						this.commonModelPPPImage.list(transaction, {
@@ -95,7 +93,7 @@ class PPPImageController {
 					page: range?.page ?? DEFAULT_PAGE,
 					pageSize: range?.pageSize ?? DEFAULT_PAGE_SIZE
 				},
-				data: roles
+				data: images
 			})
 		} catch (error) {
 			next(error)
