@@ -10,5 +10,6 @@ export class PPPUserBetRouter {
 		this.router
 			.post("/place", PPPUserBetController.placeBet)
 			.post("/list", PPPUserBetController.listUserBet)
+			.post("/result", PPPUserBetController.listPPPResults)
 	}
 }

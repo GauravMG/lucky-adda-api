@@ -16,6 +16,7 @@ import {sendPushNotification} from "../lib/FCMService"
 import CommonModel from "../models/CommonModel"
 import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
 import {logMessage} from "../utils/Logger"
+import {BetStatus} from "@prisma/client"
 
 class PPPUserBetController {
 	private commonModelPPPUserBet
@@ -62,7 +63,8 @@ class PPPUserBetController {
 
 		this.placeBet = this.placeBet.bind(this)
 		this.listUserBet = this.listUserBet.bind(this)
-		// this.finalizeGameResult = this.finalizeGameResult.bind(this)
+		this.pppGameLot = this.pppGameLot.bind(this)
+		this.listPPPResults = this.listPPPResults.bind(this)
 	}
 
 	// Bet payload for single
@@ -85,73 +87,63 @@ class PPPUserBetController {
 		}
 	}
 
-	// public async listGameResults(
-	// 	req: Request,
-	// 	res: Response,
-	// 	next: NextFunction
-	// ) {
-	// 	try {
-	// 		const response = new ApiResponse(res)
+	public async listPPPResults(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+			const {userId, roleId}: Headers = req.headers
 
-	// 		const {filter, range, sort} = await listAPIPayload(req.body)
-	// 		const customFilters: any[] = []
+			const {sessionId} = req.body
 
-	// 		const [data, total] = await prisma.$transaction(
-	// 			async (transaction: PrismaClientTransaction) => {
-	// 				let [session, total] = await Promise.all([
-	// 					this.commonModelPPPSession.list(transaction, {
-	// 						filter,
-	// 						customFilters,
-	// 						range,
-	// 						sort
-	// 					}),
+			const data = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const session = await this.commonModelPPPSession.list(transaction, {
+						sessionId
+					})
+				}
+			)
 
-	// 					this.commonModelPPPSession.list(transaction, {
-	// 						filter,
-	// 						customFilters,
-	// 						isCountOnly: true
-	// 					})
-	// 				])
+			// using function pppgamelot
+			const [dataResult] = await this.pppGameLot(sessionId)
 
-	// 				const sessionIds: number[] = session.map(({sessionId}) => sessionId)
+			// using total bet amount and use profit (betProfit)
 
-	// 				const pppGameResults = await this.commonModelPPPGameResult.list(
-	// 					transaction,
-	// 					{
-	// 						filter: {sessionId: sessionIds},
-	// 						range: {all: true}
-	// 					}
-	// 				)
+			const winningAmount = profit.betResult([10])
 
-	// 				session = session.map((session) => {
-	// 					const thisGameResults = pppGameResults.filter(
-	// 						(sessionResult) => sessionResult.sessionId === session.sessionId
-	// 					)
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					// add the amount and winning image and update betStatus in userBet
+					await this.commonModelPPPUserBet.updateById(
+						transaction,
+						{
+							winningAmount,
+							betStatus: BetStatus.won
+						},
+						dataResult.userBetId,
+						userId
+					)
 
-	// 					return {
-	// 						...session,
-	// 						gameResults: thisGameResults ?? [],
-	// 						gameResultFinal: thisGameResults?.at(-1) ?? null
-	// 					}
-	// 				})
-
-	// 				return [session, total]
-	// 			}
-	// 		)
-
-	// 		return response.successResponse({
-	// 			message: "Data",
-	// 			metadata: {
-	// 				total,
-	// 				page: range?.page ?? DEFAULT_PAGE,
-	// 				pageSize: range?.pageSize ?? DEFAULT_PAGE_SIZE
-	// 			},
-	// 			data
-	// 		})
-	// 	} catch (error) {
-	// 		next(error)
-	// 	}
-	// }
+					// update wallet
+					await this.commonModelPPPWallet.updateById(
+						transaction,
+						{
+							amount: winningAmount,
+							transactionType: "credit",
+							userBetIds: "", // will have to get
+							betStatus: BetStatus.won
+						},
+						"pppWalletId", //currently have to find out
+						userId
+					)
+				}
+			)
+			return response.successResponse({
+				message: "Result of result",
+				data: dataResult
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
 
 	public async placeBet(req: Request, res: Response, next: NextFunction) {
 		try {
@@ -240,7 +232,6 @@ class PPPUserBetController {
 			const response = new ApiResponse(res)
 
 			const {userId, roleId}: Headers = req.headers
-
 			let {filter, range, sort} = await listAPIPayload(req.body)
 			filter =
 				filter && Object.keys(filter).length
@@ -285,32 +276,35 @@ class PPPUserBetController {
 		}
 	}
 
-	public async pppGameLot() {
+	public async pppGameLot(sessionId: number) {
 		try {
 			// fetch all images to get their ids
-			const imageIds: number[] = []
-			// const [images, session] = await prisma.$transaction(
-			// 	async (transaction: PrismaClientTransaction) => {
-			// 		return await Promise.all([
-			// 			this.commonModelPPPImage.list(transaction, {}),
-			// 			this.commonModelPPPSession.list(transaction, {})
-			// 		])
-			// 	}
-			// )
-
-			// list all user bet with sessionId
-
-			// Count bets per image
-
-			// convert and sort
-
+			const userCountAndImageId = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					return await this.commonModelPPPUserBet.rawQuery(
+						transaction,
+						`
+							SELECT
+								img."imageId",
+								ARRAY_AGG(DISTINCT pppub."userId") AS "userIds",
+							    COUNT(DISTINCT pppub."userBetId")::INTEGER AS "userCount"
+							FROM 
+							    "PPPUserBet" pppub
+							JOIN 
+							    "PPPImage" img ON img."imageId" = pppub."imageId"
+							WHERE 
+							    pppub."deletedAt" IS NULL
+								AND pppub."sessionId" = ${sessionId}
+							GROUP BY 
+							    img."imageId"
+							ORDER BY 
+							    "userCount" ASC;
+							`
+					)
+				}
+			)
 			// return result
-
-			// using total bet amount and use profit (betProfit)
-
-			// add the amount and winning image and update betStatus in userBet
-
-			// use this as cron as this is time based game
+			return userCountAndImageId[0]
 		} catch (error) {
 			throw error
 		}
