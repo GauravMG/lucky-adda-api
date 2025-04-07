@@ -1,5 +1,5 @@
 export function winningAmount(betAmount: number) {
-	return betAmount * 90
+	return Number(betAmount * 90)
 }
 
 export function betResult(arrNum: number[]) {

@@ -27,7 +27,7 @@ class PPPUserBetController {
 	private commonModelUser
 
 	private idColumnPPPUserBet: string = "userBetId"
-	private idColumnPPPWallet: string = "walletId"
+	private idColumnPPPWallet: string = "pppWalletId"
 	private idColumnPPPSession: string = "sessionId"
 	private idColumnPPPImage: string = "imageId"
 	private idColumnLoginHistory: string = "loginHistoryId"
@@ -91,53 +91,93 @@ class PPPUserBetController {
 		try {
 			const response = new ApiResponse(res)
 			const {userId, roleId}: Headers = req.headers
-
 			const {sessionId} = req.body
 
-			const data = await prisma.$transaction(
+			// Using function pppgamelot
+			const dataResult = await this.pppGameLot(sessionId)
+
+			let [[session], userBet, pppWallet] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					const session = await this.commonModelPPPSession.list(transaction, {
-						sessionId
-					})
+					return await Promise.all([
+						this.commonModelPPPSession.list(transaction, {
+							filter: {sessionId}
+						}),
+						this.commonModelPPPUserBet.list(transaction, {
+							filter: {
+								imageId: dataResult.imageId,
+								sessionId
+							}
+						}),
+						this.commonModelPPPWallet.list(transaction, {
+							filter: {sessionId}
+						})
+					])
 				}
 			)
 
-			// using function pppgamelot
-			const [dataResult] = await this.pppGameLot(sessionId)
+			// Fetch the image data (await the promise) - fetch it only once
+			const [image] = await this.commonModelPPPImage.list(prisma, {
+				filter: {
+					imageId: dataResult.imageId
+				}
+			})
 
-			// using total bet amount and use profit (betProfit)
-
-			const winningAmount = profit.betResult([10])
-
+			// Start a single transaction for all updates
 			await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					// add the amount and winning image and update betStatus in userBet
-					await this.commonModelPPPUserBet.updateById(
-						transaction,
-						{
-							winningAmount,
-							betStatus: BetStatus.won
-						},
-						dataResult.userBetId,
-						userId
-					)
+					// Prepare batch update data for user bets and wallets
+					const userBetUpdates: any = []
+					const walletUpdates: any = []
 
-					// update wallet
-					await this.commonModelPPPWallet.updateById(
-						transaction,
-						{
-							amount: winningAmount,
-							transactionType: "credit",
-							userBetIds: "", // will have to get
-							betStatus: BetStatus.won
-						},
-						"pppWalletId", //currently have to find out
-						userId
-					)
+					for (let i = 0; i < userBet.length; i++) {
+						let winningAmnt: any = profit.winningAmount(
+							Number(userBet[i].betAmount)
+						)
+
+						// Update userBet status and winningAmount
+						userBetUpdates.push(
+							this.commonModelPPPUserBet.updateById(
+								transaction,
+								{
+									winningAmount: winningAmnt.toString(),
+									betStatus: BetStatus.won
+								},
+								userBet[i].userBetId,
+								userId
+							)
+						)
+
+						// Prepare wallet updates (deferred processing)
+						for (let j = 0; j < pppWallet.length; j++) {
+							walletUpdates.push(
+								this.commonModelPPPWallet.updateById(
+									transaction,
+									{
+										amount: (
+											Number(pppWallet[j].amount) + Number(winningAmnt)
+										).toString(),
+										transactionType: "credit",
+										approvalStatus: "approved",
+										userBetIds: JSON.stringify([userBet[i].userBetId]),
+										remarks: `${userBet[i].userBetId} won in session: ${session.startTime}-${session.endTime}`,
+										sessionId,
+										imageUrl: image?.imageUrl || "",
+										status: true
+									},
+									pppWallet[j].pppWalletId,
+									userId
+								)
+							)
+						}
+					}
+
+					// Execute all batch updates for user bets and wallets at once
+					await Promise.all([...userBetUpdates, ...walletUpdates])
 				}
 			)
+
 			return response.successResponse({
-				message: "Result of result",
+				message: "Result of game(PPP)",
 				data: dataResult
 			})
 		} catch (error) {
