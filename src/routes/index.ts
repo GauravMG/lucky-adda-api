@@ -19,3 +19,8 @@ export * from "./AppSettingRouter"
 
 // game routes
 export * from "./GameRouter"
+
+// PPP routes
+export * from "./PPPImageRouter"
+export * from "./PPPSessionRouter"
+export * from "./PPPUserBetRouter"
