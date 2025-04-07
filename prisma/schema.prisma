@@ -416,8 +416,6 @@ model PPPUserBet {
   user       User?       @relation(fields: [userId], references: [userId], onDelete: Cascade)
   pppSession PPPSession? @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
   pppImage   PPPImage?   @relation(fields: [imageId], references: [imageId], onDelete: Cascade)
-
-  pppWallets PPPWallet[]
 }
 
 model PPPWallet {
@@ -444,8 +442,6 @@ model PPPWallet {
   updatedById Int?
   deletedById Int?
 
-  User                User?       @relation(fields: [userId], references: [userId])
-  PPPSession          PPPSession? @relation(fields: [sessionId], references: [sessionId])
-  PPPUserBet          PPPUserBet? @relation(fields: [pPPUserBetUserBetId], references: [userBetId])
-  pPPUserBetUserBetId Int?
+  User       User?       @relation(fields: [userId], references: [userId])
+  PPPSession PPPSession? @relation(fields: [sessionId], references: [sessionId])
 }
