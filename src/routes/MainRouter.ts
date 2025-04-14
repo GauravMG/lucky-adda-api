@@ -10,7 +10,8 @@ import {
 	UploadRouter,
 	UserBankDetailRouter,
 	UserRouter,
-	WalletRouter
+	WalletRouter,
+	PaymentRouter
 } from "."
 
 const router = express.Router()
@@ -36,5 +37,8 @@ router.use("/v1/app-setting", new AppSettingRouter().router)
 
 // game routes
 router.use("/v1/game", new GameRouter().router)
+
+// payment routes
+router.use("/v1/payment", new PaymentRouter().router)
 
 export default router

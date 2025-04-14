@@ -22,5 +22,13 @@
 	{
 		"apiPath": "/v1/app-setting/list",
 		"method": "POST"
+	},
+	{
+		"apiPath": "/v1/payment/webhook",
+		"method": "GET"
+	},
+	{
+		"apiPath": "/v1/payment/webhook",
+		"method": "POST"
 	}
 ]

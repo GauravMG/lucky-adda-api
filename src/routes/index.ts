@@ -19,3 +19,6 @@ export * from "./AppSettingRouter"
 
 // game routes
 export * from "./GameRouter"
+
+// payment routes
+export * from "./PaymentRouter"
