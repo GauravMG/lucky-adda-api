@@ -100,7 +100,10 @@ class PaymentController {
 
 			return response.successResponse({
 				message: `Transaction created successfully.`,
-				data: result?.data ?? result
+				data: {
+					paymentTransactionId: paymentTransaction.paymentTransactionId,
+					...(result?.data ?? result)
+				}
 			})
 		} catch (error) {
 			next(error)
