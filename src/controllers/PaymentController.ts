@@ -31,6 +31,7 @@ class PaymentController {
 		])
 
 		this.create = this.create.bind(this)
+		this.update = this.update.bind(this)
 		this.webhook = this.webhook.bind(this)
 	}
 
@@ -100,6 +101,51 @@ class PaymentController {
 			return response.successResponse({
 				message: `Transaction created successfully.`,
 				data: result?.data ?? result
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+
+	public async update(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {userId}: Headers = req.headers
+
+			const {paymentTransactionId, paymentStatus, responseJSON} = req.body
+
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const [paymentTransaction] =
+						await this.commonModelPaymentTransaction.list(transaction, {
+							filter: {
+								paymentTransactionId
+							}
+						})
+					if (!paymentTransaction) {
+						throw new BadRequestException("Transaction doesn't exist")
+					}
+
+					await this.commonModelPaymentTransaction.updateById(
+						transaction,
+						{
+							paymentStatus,
+							responseJSON:
+								typeof responseJSON === "string"
+									? responseJSON
+									: JSON.stringify(responseJSON)
+						},
+						paymentTransactionId,
+						userId
+					)
+
+					return []
+				}
+			)
+
+			return response.successResponse({
+				message: `Transaction created successfully.`
 			})
 		} catch (error) {
 			next(error)

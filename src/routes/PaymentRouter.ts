@@ -9,6 +9,7 @@ export class PaymentRouter {
 		this.router = express.Router()
 		this.router
 			.post("/create", PaymentController.create)
+			.post("/update", PaymentController.update)
 			.post("/webhook", PaymentController.webhook)
 	}
 }
