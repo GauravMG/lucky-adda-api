@@ -58,7 +58,7 @@ class PaymentController {
 					transactionPayload = {
 						type: "any",
 						user_name: user.fullName,
-						user_email: user.email,
+						user_email: `${user.userId}_${user.mobile}@yopmail.com`,
 						user_mobile: user.mobile,
 						amount: parseInt(amount),
 						redirect_url: process.env.BASE_URL_API as string
