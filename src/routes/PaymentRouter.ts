@@ -8,7 +8,7 @@ export class PaymentRouter {
 	constructor() {
 		this.router = express.Router()
 		this.router
-			.get("/webhook", PaymentController.webhook)
+			.post("/create", PaymentController.create)
 			.post("/webhook", PaymentController.webhook)
 	}
 }

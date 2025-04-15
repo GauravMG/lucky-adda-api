@@ -84,11 +84,12 @@ model User {
   updatedById Int?
   deletedById Int?
 
-  verifications   Verification[]
-  loginHistories  LoginHistory[]
-  wallets         Wallet[]
-  userBets        UserBet[]
-  userBankDetails UserBankDetail[]
+  verifications       Verification[]
+  loginHistories      LoginHistory[]
+  wallets             Wallet[]
+  userBets            UserBet[]
+  userBankDetails     UserBankDetail[]
+  paymentTransactions PaymentTransaction[]
 
   // Inverse relations
   usersCreatedBy               User[]                @relation("UserCreatedBy")
@@ -124,6 +125,9 @@ model User {
   userBetCreatedBy             UserBet[]             @relation("UserBetCreatedBy")
   userBetUpdatedBy             UserBet[]             @relation("UserBetUpdatedBy")
   userBetDeletedBy             UserBet[]             @relation("UserBetDeletedBy")
+  paymentTransactionCreatedBy  PaymentTransaction[]  @relation("PaymentTransactionCreatedBy")
+  paymentTransactionUpdatedBy  PaymentTransaction[]  @relation("PaymentTransactionUpdatedBy")
+  paymentTransactionDeletedBy  PaymentTransaction[]  @relation("PaymentTransactionDeletedBy")
 }
 
 model Verification {
@@ -329,6 +333,28 @@ model Wallet {
   createdBy         User?          @relation("WalletCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
   updatedBy         User?          @relation("WalletUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
   deletedBy         User?          @relation("WalletDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+}
+
+model PaymentTransaction {
+  paymentTransactionId          Int            @id @default(autoincrement())
+  userId                        Int
+  user                          User?          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  amount                        Int
+  paymentStatus                 ApprovalStatus
+  requestJSON                   Json?
+  transactionCreateResponseJSON Json?
+  responseJSON                  Json?
+  status                        Boolean        @default(true)
+  createdAt                     DateTime       @default(now())
+  updatedAt                     DateTime?
+  deletedAt                     DateTime?
+  createdBy                     User?          @relation("PaymentTransactionCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
+  updatedBy                     User?          @relation("PaymentTransactionUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
+  deletedBy                     User?          @relation("PaymentTransactionDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
 
   createdById Int?
   updatedById Int?

@@ -1,39 +1,109 @@
 import {NextFunction, Request, Response} from "express"
 
-import {listAPIPayload} from "../helpers"
+import {CreateTransactionPayload} from "src/types/pay-from-upi"
 import {ApiResponse} from "../lib/APIResponse"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
 import {BadRequestException} from "../lib/exceptions"
 import CommonModel from "../models/CommonModel"
-import WalletModel from "../models/WalletModel"
-import {DEFAULT_PAGE, DEFAULT_PAGE_SIZE, Headers} from "../types/common"
+import * as PayFromUpi from "../services/PayFromUpi"
+import {Headers} from "../types/common"
 
 class PaymentController {
+	private commonModelPaymentTransaction
 	private commonModelWallet
 	private commonModelUser
-	private commonModelGame
-	private commonModelUserBet
 
+	private idColumnPaymentTransaction: string = "paymentTransactionId"
 	private idColumnWallet: string = "walletId"
 	private idColumnUser: string = "userId"
-	private idColumnGame: string = "gameId"
-	private idColumnUserBet: string = "betId"
 
 	constructor() {
+		this.commonModelPaymentTransaction = new CommonModel(
+			"PaymentTransaction",
+			this.idColumnPaymentTransaction,
+			[]
+		)
 		this.commonModelWallet = new CommonModel("Wallet", this.idColumnWallet, [])
 		this.commonModelUser = new CommonModel("User", this.idColumnUser, [
 			"roleId",
 			"fullName",
 			"mobile"
 		])
-		this.commonModelGame = new CommonModel("Game", this.idColumnGame, [])
-		this.commonModelUserBet = new CommonModel(
-			"UserBet",
-			this.idColumnUserBet,
-			[]
-		)
 
+		this.create = this.create.bind(this)
 		this.webhook = this.webhook.bind(this)
+	}
+
+	public async create(req: Request, res: Response, next: NextFunction) {
+		try {
+			const response = new ApiResponse(res)
+
+			const {userId, roleId}: Headers = req.headers
+
+			const {amount} = req.body
+
+			let transactionPayload: CreateTransactionPayload | any = {}
+
+			const [user, paymentTransaction] = await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					const [user] = await this.commonModelUser.list(transaction, {
+						filter: {
+							userId
+						}
+					})
+					if (!user) {
+						throw new BadRequestException("User doesn't exist")
+					}
+
+					transactionPayload = {
+						type: "any",
+						user_name: user.fullName,
+						user_email: user.email,
+						user_mobile: user.mobile,
+						amount: parseInt(amount),
+						redirect_url: process.env.BASE_URL_API as string
+					}
+
+					const [paymentTransaction] =
+						await this.commonModelPaymentTransaction.bulkCreate(
+							transaction,
+							[
+								{
+									userId,
+									amount,
+									paymentStatus: "pending",
+									requestJSON: JSON.stringify(transactionPayload)
+								}
+							],
+							userId
+						)
+
+					return [user, paymentTransaction]
+				}
+			)
+
+			const result = await PayFromUpi.createTransaction(transactionPayload)
+
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					await this.commonModelPaymentTransaction.updateById(
+						transaction,
+						{
+							transactionCreateResponseJSON: JSON.stringify(result)
+						},
+						paymentTransaction.paymentTransactionId,
+						userId
+					)
+				}
+			)
+
+			return response.successResponse({
+				message: `Transaction created successfully.`,
+				data: result?.data ?? result
+			})
+		} catch (error) {
+			next(error)
+		}
 	}
 
 	public async webhook(req: Request, res: Response, next: NextFunction) {
