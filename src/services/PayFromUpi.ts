@@ -1,6 +1,6 @@
 import axios from "axios"
 
-import {BadRequestException} from "src/lib/exceptions"
+import {BadRequestException} from "../lib/exceptions"
 import {CreateTransactionPayload} from "../types/pay-from-upi"
 
 const BASE_PATH: string = "https://payfromupi.com/api"
