@@ -16,13 +16,16 @@ const axiosObj = axios.create({
 	}
 })
 
+const replaceKeywords = (message: string) =>
+	message.replace("Gateway Response: ", "")
+
 export const createTransaction = async (payload: CreateTransactionPayload) => {
 	try {
 		const response = await axiosObj.post("/transactions/create", payload)
 		const data = response.data
 
 		if (!data.success) {
-			throw new BadRequestException(data.message)
+			throw new BadRequestException(replaceKeywords(data.message))
 		}
 
 		return data
