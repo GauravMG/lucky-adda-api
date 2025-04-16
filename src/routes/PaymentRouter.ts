@@ -10,6 +10,7 @@ export class PaymentRouter {
 		this.router
 			.post("/create", PaymentController.create)
 			.post("/update", PaymentController.update)
+			.get("/webhook", PaymentController.webhook)
 			.post("/webhook", PaymentController.webhook)
 	}
 }
