@@ -45,7 +45,7 @@ class PaymentController {
 
 			let transactionPayload: CreateTransactionPayload | any = {}
 
-			const [user, paymentTransaction] = await prisma.$transaction(
+			const [user] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					const [user] = await this.commonModelUser.list(transaction, {
 						filter: {
@@ -65,6 +65,15 @@ class PaymentController {
 						redirect_url: process.env.BASE_URL_API as string
 					}
 
+					return [user]
+				}
+			)
+
+			const result = await PayFromUpi.createTransaction(transactionPayload)
+
+			let paymentTransactionId: number | null = null
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
 					const [paymentTransaction] =
 						await this.commonModelPaymentTransaction.bulkCreate(
 							transaction,
@@ -73,35 +82,23 @@ class PaymentController {
 									userId,
 									amount,
 									paymentStatus: "pending",
-									requestJSON: JSON.stringify(transactionPayload)
+									requestJSON: JSON.stringify(transactionPayload),
+									transactionCreateResponseJSON: JSON.stringify(result)
 								}
 							],
 							userId
 						)
 
-					return [user, paymentTransaction]
-				}
-			)
+					paymentTransactionId = paymentTransaction.paymentTransactionId
 
-			const result = await PayFromUpi.createTransaction(transactionPayload)
-
-			await prisma.$transaction(
-				async (transaction: PrismaClientTransaction) => {
-					await this.commonModelPaymentTransaction.updateById(
-						transaction,
-						{
-							transactionCreateResponseJSON: JSON.stringify(result)
-						},
-						paymentTransaction.paymentTransactionId,
-						userId
-					)
+					return []
 				}
 			)
 
 			return response.successResponse({
 				message: `Transaction created successfully.`,
 				data: {
-					paymentTransactionId: paymentTransaction.paymentTransactionId,
+					paymentTransactionId,
 					...(result?.data ?? result)
 				}
 			})

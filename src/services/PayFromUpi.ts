@@ -1,5 +1,6 @@
 import axios from "axios"
 
+import {BadRequestException} from "src/lib/exceptions"
 import {CreateTransactionPayload} from "../types/pay-from-upi"
 
 const BASE_PATH: string = "https://payfromupi.com/api"
@@ -18,7 +19,13 @@ const axiosObj = axios.create({
 export const createTransaction = async (payload: CreateTransactionPayload) => {
 	try {
 		const response = await axiosObj.post("/transactions/create", payload)
-		return response.data
+		const data = response.data
+
+		if (!data.success) {
+			throw new BadRequestException(data.message)
+		}
+
+		return data
 	} catch (error) {
 		throw error
 	}
