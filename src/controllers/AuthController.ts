@@ -252,7 +252,7 @@ class AuthController {
 
 						break
 				}
-				sendSMS([{mobile, message: smsText}])
+				// sendSMS([{mobile, message: smsText}])
 			}
 
 			return response.successResponse({
