@@ -145,6 +145,7 @@ export const validateJWTToken = async (
 			`req.headers.versionnumber as string`,
 			req.headers.versionnumber as string
 		)
+		console.log(`appVersion.versionNumber`, appVersion.versionNumber)
 		console.log(`loginHistory.versionNumber`, loginHistory.versionNumber)
 		const appVersionNumber: string =
 			(req.headers.versionnumber as string) ?? "1.0.0"
@@ -165,16 +166,16 @@ export const validateJWTToken = async (
 		}
 
 		console.log(
-			`parseInt(appVersion.versionNumber.replace(/./g, ""))`,
-			parseInt(appVersion.versionNumber.replace(/./g, ""))
+			`parseInt(appVersion.versionNumber.replace(/\./g, ""))`,
+			parseInt(appVersion.versionNumber.replace(/\./g, ""))
 		)
 		console.log(
-			`parseInt(appVersionNumber.replace(/./g, ""))`,
-			parseInt(appVersionNumber.replace(/./g, ""))
+			`parseInt(appVersionNumber.replace(/\./g, ""))`,
+			parseInt(appVersionNumber.replace(/\./g, ""))
 		)
 		if (
-			parseInt(appVersion.versionNumber.replace(/./g, "")) >
-			parseInt(appVersionNumber.replace(/./g, ""))
+			parseInt(appVersion.versionNumber.replace(/\./g, "")) >
+			parseInt(appVersionNumber.replace(/\./g, ""))
 		) {
 			throw new UpdateAvailable("App update available")
 		}

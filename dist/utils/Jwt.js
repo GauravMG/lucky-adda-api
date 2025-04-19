@@ -93,6 +93,7 @@ const validateJWTToken = async (req, res, next) => {
             throw new exceptions_1.UnauthorizedException("Your account is in-active. Please contact admin.");
         }
         console.log(`req.headers.versionnumber as string`, req.headers.versionnumber);
+        console.log(`appVersion.versionNumber`, appVersion.versionNumber);
         console.log(`loginHistory.versionNumber`, loginHistory.versionNumber);
         const appVersionNumber = req.headers.versionnumber ?? "1.0.0";
         if (appVersionNumber !== loginHistory.versionNumber) {
@@ -102,10 +103,10 @@ const validateJWTToken = async (req, res, next) => {
                 }, loginHistory.loginHistoryId, user.userId);
             });
         }
-        console.log(`parseInt(appVersion.versionNumber.replace(/./g, ""))`, parseInt(appVersion.versionNumber.replace(/./g, "")));
-        console.log(`parseInt(appVersionNumber.replace(/./g, ""))`, parseInt(appVersionNumber.replace(/./g, "")));
-        if (parseInt(appVersion.versionNumber.replace(/./g, "")) >
-            parseInt(appVersionNumber.replace(/./g, ""))) {
+        console.log(`parseInt(appVersion.versionNumber.replace(/\./g, ""))`, parseInt(appVersion.versionNumber.replace(/\./g, "")));
+        console.log(`parseInt(appVersionNumber.replace(/\./g, ""))`, parseInt(appVersionNumber.replace(/\./g, "")));
+        if (parseInt(appVersion.versionNumber.replace(/\./g, "")) >
+            parseInt(appVersionNumber.replace(/\./g, ""))) {
             throw new exceptions_1.UpdateAvailable("App update available");
         }
         req.headers.userId = user.userId;
