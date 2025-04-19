@@ -44,7 +44,6 @@ const validateJWTToken = async (req, res, next) => {
         const commonModelUser = new CommonModel_1.default("User", "userId", []);
         const commonModelLoginHistory = new CommonModel_1.default("LoginHistory", "loginHistoryId", []);
         const commonModelAppVersion = new CommonModel_1.default("AppVersion", "appVersionId", []);
-        console.log(`req.headers.devicetype as string`, req.headers.devicetype);
         const [[appSetting], [user], [loginHistory], [appVersion]] = await PrismaLib_1.prisma.$transaction(async (transaction) => {
             return await Promise.all([
                 commonModelAppSetting.list(transaction, {
@@ -92,9 +91,6 @@ const validateJWTToken = async (req, res, next) => {
         if (!user.status) {
             throw new exceptions_1.UnauthorizedException("Your account is in-active. Please contact admin.");
         }
-        console.log(`req.headers.versionnumber as string`, req.headers.versionnumber);
-        console.log(`appVersion.versionNumber`, appVersion.versionNumber);
-        console.log(`loginHistory.versionNumber`, loginHistory.versionNumber);
         const appVersionNumber = req.headers.versionnumber ?? "1.0.0";
         if (appVersionNumber !== loginHistory.versionNumber) {
             await PrismaLib_1.prisma.$transaction(async (transaction) => {
@@ -103,8 +99,6 @@ const validateJWTToken = async (req, res, next) => {
                 }, loginHistory.loginHistoryId, user.userId);
             });
         }
-        console.log(`parseInt(appVersion.versionNumber.replace(/\./g, ""))`, parseInt(appVersion.versionNumber.replace(/\./g, "")));
-        console.log(`parseInt(appVersionNumber.replace(/\./g, ""))`, parseInt(appVersionNumber.replace(/\./g, "")));
         if (parseInt(appVersion.versionNumber.replace(/\./g, "")) >
             parseInt(appVersionNumber.replace(/\./g, ""))) {
             throw new exceptions_1.UpdateAvailable("App update available");
