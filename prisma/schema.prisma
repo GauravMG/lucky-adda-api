@@ -128,6 +128,9 @@ model User {
   paymentTransactionCreatedBy  PaymentTransaction[]  @relation("PaymentTransactionCreatedBy")
   paymentTransactionUpdatedBy  PaymentTransaction[]  @relation("PaymentTransactionUpdatedBy")
   paymentTransactionDeletedBy  PaymentTransaction[]  @relation("PaymentTransactionDeletedBy")
+  appVersionCreatedBy          AppVersion[]          @relation("AppVersionCreatedBy")
+  appVersionUpdatedBy          AppVersion[]          @relation("AppVersionUpdatedBy")
+  appVersionDeletedBy          AppVersion[]          @relation("AppVersionDeletedBy")
 }
 
 model Verification {
@@ -155,6 +158,7 @@ model LoginHistory {
   user           User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
   deviceType     String    @db.VarChar(50)
   deviceId       String?
+  versionNumber  String?   @default("1.0.0")
   jwtToken       String
   fcmToken       String?
   status         Boolean   @default(true)
@@ -355,6 +359,24 @@ model PaymentTransaction {
   createdBy                     User?          @relation("PaymentTransactionCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
   updatedBy                     User?          @relation("PaymentTransactionUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
   deletedBy                     User?          @relation("PaymentTransactionDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+}
+
+model AppVersion {
+  appVersionId  Int       @id @default(autoincrement())
+  deviceType    String
+  versionNumber String
+  updateType    String
+  status        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime?
+  deletedAt     DateTime?
+  createdBy     User?     @relation("AppVersionCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy     User?     @relation("AppVersionUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy     User?     @relation("AppVersionDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
 
   createdById Int?
   updatedById Int?

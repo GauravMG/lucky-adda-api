@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BadRequestExceptionFor422 = exports.InternalServerException = exports.EntityNotFoundException = exports.ForbiddenException = exports.UnauthorizedException = exports.PayloadValidationException = exports.BadRequestException = exports.ServerError = void 0;
+exports.UpdateAvailable = exports.BadRequestExceptionFor422 = exports.InternalServerException = exports.EntityNotFoundException = exports.ForbiddenException = exports.UnauthorizedException = exports.PayloadValidationException = exports.BadRequestException = exports.ServerError = void 0;
 class ServerError extends Error {
     statusCode;
     message;
@@ -57,3 +57,9 @@ class BadRequestExceptionFor422 extends ServerError {
     }
 }
 exports.BadRequestExceptionFor422 = BadRequestExceptionFor422;
+class UpdateAvailable extends ServerError {
+    constructor(message = "Update Available", errorCode = "update_available") {
+        super(422, message, errorCode);
+    }
+}
+exports.UpdateAvailable = UpdateAvailable;

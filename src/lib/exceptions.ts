@@ -69,3 +69,12 @@ export class BadRequestExceptionFor422 extends ServerError {
 		super(422, message, errorCode)
 	}
 }
+
+export class UpdateAvailable extends ServerError {
+	constructor(
+		message: string = "Update Available",
+		errorCode: string = "update_available"
+	) {
+		super(422, message, errorCode)
+	}
+}

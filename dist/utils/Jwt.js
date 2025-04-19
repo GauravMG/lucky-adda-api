@@ -43,7 +43,8 @@ const validateJWTToken = async (req, res, next) => {
         const commonModelAppSetting = new CommonModel_1.default("AppSetting", "appSettingId", []);
         const commonModelUser = new CommonModel_1.default("User", "userId", []);
         const commonModelLoginHistory = new CommonModel_1.default("LoginHistory", "loginHistoryId", []);
-        const [[appSetting], [user], [loginHistory]] = await PrismaLib_1.prisma.$transaction(async (transaction) => {
+        const commonModelAppVersion = new CommonModel_1.default("AppVersion", "appVersionId", []);
+        const [[appSetting], [user], [loginHistory], [appVersion]] = await PrismaLib_1.prisma.$transaction(async (transaction) => {
             return await Promise.all([
                 commonModelAppSetting.list(transaction, {
                     range: {
@@ -60,6 +61,21 @@ const validateJWTToken = async (req, res, next) => {
                     filter: {
                         userId
                     }
+                }),
+                commonModelAppVersion.list(transaction, {
+                    filter: {
+                        deviceType: req.headers.devicetype ?? "android"
+                    },
+                    range: {
+                        page: 1,
+                        pageSize: 1
+                    },
+                    sort: [
+                        {
+                            orderBy: "appVersionId",
+                            orderDir: "desc"
+                        }
+                    ]
                 })
             ]);
         });
@@ -74,6 +90,18 @@ const validateJWTToken = async (req, res, next) => {
         }
         if (!user.status) {
             throw new exceptions_1.UnauthorizedException("Your account is in-active. Please contact admin.");
+        }
+        const appVersionNumber = req.headers.versionnumber ?? "1.0.0";
+        if (appVersionNumber !== loginHistory.versionNumber) {
+            await PrismaLib_1.prisma.$transaction(async (transaction) => {
+                await commonModelLoginHistory.updateById(transaction, {
+                    versionNumber: appVersionNumber
+                }, loginHistory.loginHistoryId, user.userId);
+            });
+        }
+        if (parseInt(appVersion.versionNumber.replace(/./g, "")) >
+            parseInt(appVersionNumber.replace(/./g, ""))) {
+            throw new exceptions_1.UpdateAvailable("App update available");
         }
         req.headers.userId = user.userId;
         req.headers.roleId = user.roleId;

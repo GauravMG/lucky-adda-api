@@ -3,7 +3,11 @@ import jwt from "jsonwebtoken"
 
 import publicRoutes from "../../schemas/publicRoutes.json"
 import {PrismaClientTransaction, prisma} from "../lib/PrismaLib"
-import {BadRequestException, UnauthorizedException} from "../lib/exceptions"
+import {
+	BadRequestException,
+	UnauthorizedException,
+	UpdateAvailable
+} from "../lib/exceptions"
 import CommonModel from "../models/CommonModel"
 import {UrlSchema} from "../types/common"
 
@@ -68,31 +72,53 @@ export const validateJWTToken = async (
 			"loginHistoryId",
 			[]
 		)
-
-		const [[appSetting], [user], [loginHistory]] = await prisma.$transaction(
-			async (transaction: PrismaClientTransaction) => {
-				return await Promise.all([
-					commonModelAppSetting.list(transaction, {
-						range: {
-							page: 1,
-							pageSize: 1
-						}
-					}),
-
-					commonModelUser.list(transaction, {
-						filter: {
-							userId
-						}
-					}),
-
-					commonModelLoginHistory.list(transaction, {
-						filter: {
-							userId
-						}
-					})
-				])
-			}
+		const commonModelAppVersion = new CommonModel(
+			"AppVersion",
+			"appVersionId",
+			[]
 		)
+
+		const [[appSetting], [user], [loginHistory], [appVersion]] =
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					return await Promise.all([
+						commonModelAppSetting.list(transaction, {
+							range: {
+								page: 1,
+								pageSize: 1
+							}
+						}),
+
+						commonModelUser.list(transaction, {
+							filter: {
+								userId
+							}
+						}),
+
+						commonModelLoginHistory.list(transaction, {
+							filter: {
+								userId
+							}
+						}),
+
+						commonModelAppVersion.list(transaction, {
+							filter: {
+								deviceType: (req.headers.devicetype as string) ?? "android"
+							},
+							range: {
+								page: 1,
+								pageSize: 1
+							},
+							sort: [
+								{
+									orderBy: "appVersionId",
+									orderDir: "desc"
+								}
+							]
+						})
+					])
+				}
+			)
 		if (!user) {
 			throw new UnauthorizedException("User does not exist")
 		}
@@ -109,6 +135,31 @@ export const validateJWTToken = async (
 			throw new UnauthorizedException(
 				"Your account is in-active. Please contact admin."
 			)
+		}
+
+		const appVersionNumber: string =
+			(req.headers.versionnumber as string) ?? "1.0.0"
+
+		if (appVersionNumber !== loginHistory.versionNumber) {
+			await prisma.$transaction(
+				async (transaction: PrismaClientTransaction) => {
+					await commonModelLoginHistory.updateById(
+						transaction,
+						{
+							versionNumber: appVersionNumber
+						},
+						loginHistory.loginHistoryId,
+						user.userId
+					)
+				}
+			)
+		}
+
+		if (
+			parseInt(appVersion.versionNumber.replace(/./g, "")) >
+			parseInt(appVersionNumber.replace(/./g, ""))
+		) {
+			throw new UpdateAvailable("App update available")
 		}
 
 		req.headers.userId = user.userId
