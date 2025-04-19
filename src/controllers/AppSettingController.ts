@@ -46,7 +46,14 @@ class AppSettingController {
 
 			return response.successResponse({
 				message: `App settings`,
-				data
+				data: {
+					...data,
+					amountDeposit: parseInt(process.env.AMOUNT_DEPOSIT as string),
+					amountConversion: parseInt(process.env.AMOUNT_CONVERSION as string),
+					amountReferral: parseInt(process.env.AMOUNT_REFERRAL as string),
+					amountJodi: parseInt(process.env.AMOUNT_JODI as string),
+					amountHarup: parseInt(process.env.AMOUNT_HARUP as string)
+				}
 			})
 		} catch (error) {
 			next(error)
