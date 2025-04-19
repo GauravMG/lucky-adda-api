@@ -165,15 +165,15 @@ export const validateJWTToken = async (
 		}
 
 		console.log(
-			`parseInt(loginHistory.versionNumber.replace(/./g, ""))`,
-			parseInt(loginHistory.versionNumber.replace(/./g, ""))
+			`parseInt(appVersion.versionNumber.replace(/./g, ""))`,
+			parseInt(appVersion.versionNumber.replace(/./g, ""))
 		)
 		console.log(
 			`parseInt(appVersionNumber.replace(/./g, ""))`,
 			parseInt(appVersionNumber.replace(/./g, ""))
 		)
 		if (
-			parseInt(loginHistory.versionNumber.replace(/./g, "")) >
+			parseInt(appVersion.versionNumber.replace(/./g, "")) >
 			parseInt(appVersionNumber.replace(/./g, ""))
 		) {
 			throw new UpdateAvailable("App update available")
