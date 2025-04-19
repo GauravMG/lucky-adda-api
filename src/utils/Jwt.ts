@@ -78,6 +78,10 @@ export const validateJWTToken = async (
 			[]
 		)
 
+		console.log(
+			`req.headers.devicetype as string`,
+			req.headers.devicetype as string
+		)
 		const [[appSetting], [user], [loginHistory], [appVersion]] =
 			await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
@@ -137,6 +141,11 @@ export const validateJWTToken = async (
 			)
 		}
 
+		console.log(
+			`req.headers.versionnumber as string`,
+			req.headers.versionnumber as string
+		)
+		console.log(`loginHistory.versionNumber`, loginHistory.versionNumber)
 		const appVersionNumber: string =
 			(req.headers.versionnumber as string) ?? "1.0.0"
 
@@ -155,8 +164,16 @@ export const validateJWTToken = async (
 			)
 		}
 
+		console.log(
+			`parseInt(loginHistory.versionNumber.replace(/./g, ""))`,
+			parseInt(loginHistory.versionNumber.replace(/./g, ""))
+		)
+		console.log(
+			`parseInt(appVersionNumber.replace(/./g, ""))`,
+			parseInt(appVersionNumber.replace(/./g, ""))
+		)
 		if (
-			parseInt(appVersion.versionNumber.replace(/./g, "")) >
+			parseInt(loginHistory.versionNumber.replace(/./g, "")) >
 			parseInt(appVersionNumber.replace(/./g, ""))
 		) {
 			throw new UpdateAvailable("App update available")
