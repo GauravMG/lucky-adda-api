@@ -32,11 +32,11 @@ class AppSettingController {
                 message: `App settings`,
                 data: {
                     ...data,
-                    amountDeposit: parseInt(process.env.AMOUNT_DEPOSIT),
-                    amountConversion: parseInt(process.env.AMOUNT_CONVERSION),
-                    amountReferral: parseInt(process.env.AMOUNT_REFERRAL),
-                    amountJodi: parseInt(process.env.AMOUNT_JODI),
-                    amountHarup: parseInt(process.env.AMOUNT_HARUP)
+                    amountDeposit: parseFloat(process.env.AMOUNT_DEPOSIT),
+                    amountConversion: parseFloat(process.env.AMOUNT_CONVERSION),
+                    amountReferral: parseFloat(process.env.AMOUNT_REFERRAL),
+                    amountJodi: parseFloat(process.env.AMOUNT_JODI),
+                    amountHarup: parseFloat(process.env.AMOUNT_HARUP)
                 }
             });
         }
