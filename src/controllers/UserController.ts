@@ -69,7 +69,6 @@ class UserController {
 			const response = new ApiResponse(res)
 
 			const {userId, ...restPayload} = req.body
-			console.log(`restPayload`, restPayload)
 
 			const [user] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
@@ -93,19 +92,19 @@ class UserController {
 							throw new BadRequestException("Please enter current password")
 						}
 
-						const isValidCurrentPassword: boolean = await bcrypt.compare(
-							restPayload.currentPassword,
-							existingUser.password
-						)
-						if (!isValidCurrentPassword) {
-							throw new BadRequestException("Invalid current password")
+						if (
+							(restPayload?.currentPassword ?? "").trim() !== "" &&
+							(existingUser.password ?? "").trim() !== ""
+						) {
+							const isValidCurrentPassword: boolean = await bcrypt.compare(
+								restPayload.currentPassword,
+								existingUser.password
+							)
+							if (!isValidCurrentPassword) {
+								throw new BadRequestException("Invalid current password")
+							}
 						}
 
-						console.log(`restPayload.password`, restPayload.password)
-						console.log(
-							`process.env.SALT_ROUNDS as string`,
-							process.env.SALT_ROUNDS as string
-						)
 						const encryptedPassword: string = await bcrypt.hash(
 							restPayload.password,
 							parseInt(process.env.SALT_ROUNDS as string)
