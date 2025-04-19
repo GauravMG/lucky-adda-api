@@ -70,13 +70,6 @@ class UserController {
 
 			const {userId, ...restPayload} = req.body
 
-			if (
-				(restPayload?.password ?? "").trim() !== "" &&
-				(restPayload?.currentPassword ?? "").trim() === ""
-			) {
-				throw new BadRequestException("Please enter current password")
-			}
-
 			const [user] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
 					// check if user exists
@@ -91,6 +84,14 @@ class UserController {
 
 					// hash password
 					if ((restPayload?.password ?? "").trim() !== "") {
+						if (
+							(restPayload?.password ?? "").trim() !== "" &&
+							(restPayload?.currentPassword ?? "").trim() === "" &&
+							(existingUser.password ?? "").trim() !== ""
+						) {
+							throw new BadRequestException("Please enter current password")
+						}
+
 						const isValidCurrentPassword: boolean = await bcrypt.compare(
 							restPayload.currentPassword,
 							existingUser.password
