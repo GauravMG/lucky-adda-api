@@ -915,21 +915,27 @@ class GameController {
 								if (bet.betNumber.toString() === resultNumber) {
 									// Case 1: Exact match
 									betStatus = "won"
-									winningAmount = bet.betAmount * 90
+									winningAmount =
+										bet.betAmount *
+										parseInt((process.env.AMOUNT_JODI as string) ?? "90")
 								} else if (
 									bet.betNumber.startsWith("A") &&
 									bet.betNumber[1] === resultNumber[0]
 								) {
 									// Case 2: Matches 1st digit after removing "A"
 									betStatus = "won"
-									winningAmount = bet.betAmount * 9
+									winningAmount =
+										bet.betAmount *
+										parseInt((process.env.AMOUNT_HARUP as string) ?? "9")
 								} else if (
 									bet.betNumber.startsWith("B") &&
 									bet.betNumber[1] === resultNumber[1]
 								) {
 									// Case 3: Matches 2nd digit after removing "B"
 									betStatus = "won"
-									winningAmount = bet.betAmount * 9
+									winningAmount =
+										bet.betAmount *
+										parseInt((process.env.AMOUNT_HARUP as string) ?? "9")
 								}
 
 								if (!walletUserId.includes(bet.userId)) {

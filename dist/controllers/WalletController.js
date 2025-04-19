@@ -55,7 +55,9 @@ class WalletController {
                         Number(payload[i].amount) >= 2000) {
                         newPayload.push({
                             ...payload[i],
-                            amount: payload[i].amount / 100,
+                            amount: payload[i].amount *
+                                (parseInt(process.env.AMOUNT_DEPOSIT ?? "1") /
+                                    100),
                             remarks: "Deposit Bonus",
                             approvalStatus: "approved",
                             isBonus: true
@@ -455,7 +457,9 @@ class WalletController {
                     {
                         userId,
                         transactionType: "credit",
-                        amount: (amount * 2) / 100,
+                        amount: (amount *
+                            parseInt(process.env.AMOUNT_CONVERSION ?? "2")) /
+                            100,
                         approvalStatus: "approved",
                         remarks: "Cashback bonus for converting winnings",
                         isConverted: true,
