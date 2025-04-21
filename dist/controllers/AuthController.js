@@ -9,7 +9,6 @@ const path_1 = __importDefault(require("path"));
 const helpers_1 = require("../helpers");
 const APIResponse_1 = require("../lib/APIResponse");
 const PrismaLib_1 = require("../lib/PrismaLib");
-const SMSService_1 = require("../lib/SMSService");
 const exceptions_1 = require("../lib/exceptions");
 const CommonModel_1 = __importDefault(require("../models/CommonModel"));
 const auth_1 = require("../types/auth");
@@ -165,7 +164,7 @@ class AuthController {
                         message = `A SMS has been ${isResend ? "re" : ""}sent on your mobile number.`;
                         break;
                 }
-                (0, SMSService_1.sendSMS)([{ mobile, message: smsText }]);
+                // sendSMS([{mobile, message: smsText}])
             }
             return response.successResponse({
                 message,
