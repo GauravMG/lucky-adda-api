@@ -71,11 +71,13 @@ class UserController {
                 }
                 // hash password
                 if ((restPayload?.password ?? "").trim() !== "") {
-                    if ((restPayload?.password ?? "").trim() !== "" &&
-                        (restPayload?.currentPassword ?? "").trim() === "" &&
-                        (existingUser.password ?? "").trim() !== "") {
-                        throw new exceptions_1.BadRequestException("Please enter current password");
-                    }
+                    // if (
+                    // 	(restPayload?.password ?? "").trim() !== "" &&
+                    // 	(restPayload?.currentPassword ?? "").trim() === "" &&
+                    // 	(existingUser.password ?? "").trim() !== ""
+                    // ) {
+                    // 	throw new BadRequestException("Please enter current password")
+                    // }
                     if ((restPayload?.currentPassword ?? "").trim() !== "" &&
                         (existingUser.password ?? "").trim() !== "") {
                         const isValidCurrentPassword = await bcrypt_1.default.compare(restPayload.currentPassword, existingUser.password);

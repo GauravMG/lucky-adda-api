@@ -84,13 +84,13 @@ class UserController {
 
 					// hash password
 					if ((restPayload?.password ?? "").trim() !== "") {
-						if (
-							(restPayload?.password ?? "").trim() !== "" &&
-							(restPayload?.currentPassword ?? "").trim() === "" &&
-							(existingUser.password ?? "").trim() !== ""
-						) {
-							throw new BadRequestException("Please enter current password")
-						}
+						// if (
+						// 	(restPayload?.password ?? "").trim() !== "" &&
+						// 	(restPayload?.currentPassword ?? "").trim() === "" &&
+						// 	(existingUser.password ?? "").trim() !== ""
+						// ) {
+						// 	throw new BadRequestException("Please enter current password")
+						// }
 
 						if (
 							(restPayload?.currentPassword ?? "").trim() !== "" &&
