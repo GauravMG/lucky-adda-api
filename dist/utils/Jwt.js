@@ -99,6 +99,12 @@ const validateJWTToken = async (req, res, next) => {
                 }, loginHistory.loginHistoryId, user.userId);
             });
         }
+        console.log(`appVersionNumber`, appVersionNumber);
+        console.log(`appVersionNumber.replace(/\./g, "")`, appVersionNumber.replace(/\./g, ""));
+        console.log(`parseInt(appVersion.versionNumber.replace(/\./g, ""))`, parseInt(appVersion.versionNumber.replace(/\./g, "")));
+        console.log(`appVersion.versionNumber`, appVersion.versionNumber);
+        console.log(`appVersion.versionNumber.replace(/\./g, "")`, appVersion.versionNumber.replace(/\./g, ""));
+        console.log(`parseInt(appVersionNumber.replace(/\./g, ""))`, parseInt(appVersionNumber.replace(/\./g, "")));
         if (parseInt(appVersion.versionNumber.replace(/\./g, "")) >
             parseInt(appVersionNumber.replace(/\./g, ""))) {
             throw new exceptions_1.UpdateAvailable("App update available");
