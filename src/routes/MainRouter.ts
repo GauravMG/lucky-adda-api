@@ -1,16 +1,17 @@
 import express from "express"
 
 import {
-	AppSettingRouter,
 	AuthRouter,
-	DocumentRouter,
-	GameRouter,
-	NotificationRouter,
 	RoleRouter,
 	UploadRouter,
-	UserBankDetailRouter,
 	UserRouter,
 	WalletRouter,
+	UserBankDetailRouter,
+	DocumentRouter,
+	NotificationRouter,
+	AppSettingRouter,
+	ReportRouter,
+	GameRouter,
 	PaymentRouter
 } from "."
 
@@ -34,6 +35,7 @@ router.use("/v1/user-bank-detail", new UserBankDetailRouter().router)
 router.use("/v1/document", new DocumentRouter().router)
 router.use("/v1/notification", new NotificationRouter().router)
 router.use("/v1/app-setting", new AppSettingRouter().router)
+router.use("/v1/report", new ReportRouter().router)
 
 // game routes
 router.use("/v1/game", new GameRouter().router)
