@@ -129,6 +129,9 @@ class AuthController {
                     existingUser = existingUser[0];
                     isPersonalInfoCompleted = false;
                 }
+                else if ((existingUser.password ?? "").trim() === "") {
+                    isPersonalInfoCompleted = false;
+                }
                 const { userId } = existingUser;
                 if ((existingUser.referralCode ?? "").trim() === "") {
                     const referralCode = (0, helpers_1.generateReferralCode)(userId);

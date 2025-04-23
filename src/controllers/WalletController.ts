@@ -72,7 +72,8 @@ class WalletController {
 						if (
 							payload[i].transactionType === "credit" &&
 							(payload[i].remarks ?? "").trim() === "" &&
-							Number(payload[i].amount) >= 2000
+							Number(payload[i].amount) >= 2000 &&
+							!payload[i].isBonus
 						) {
 							newPayload.push({
 								...payload[i],
@@ -84,6 +85,46 @@ class WalletController {
 								approvalStatus: "approved",
 								isBonus: true
 							})
+						}
+						if (
+							payload[i].transactionType === "credit" &&
+							!payload[i].isBonus
+						) {
+							const [userCredited] = await this.commonModelUser.list(
+								transaction,
+								{
+									filter: {
+										userId: payload[i].userId
+									}
+								}
+							)
+
+							if ((userCredited.referredByCode ?? "").trim() !== "") {
+								const [referredByUser] = await this.commonModelUser.list(
+									transaction,
+									{
+										filter: {
+											referralCode: userCredited.referredByCode
+										}
+									}
+								)
+								if (referredByUser) {
+									newPayload.push({
+										...payload[i],
+										userId: referredByUser.userId,
+										transactionType: "credit",
+										amount:
+											payload[i].amount *
+											(parseInt(
+												(process.env.AMOUNT_REFERRAL as string) ?? "2"
+											) /
+												100),
+										approvalStatus: "approved",
+										remarks: "Referral Bonus",
+										isBonus: true
+									})
+								}
+							}
 						}
 					}
 

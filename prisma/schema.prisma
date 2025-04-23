@@ -203,9 +203,9 @@ model NotificationService {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime?
   deletedAt             DateTime?
-  createdBy             User?     @relation("NotificationServiceCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
-  updatedBy             User?     @relation("NotificationServiceUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
-  deletedBy             User?     @relation("NotificationServiceDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+  createdBy             User?     @relation("NotificationServiceCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy             User?     @relation("NotificationServiceUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy             User?     @relation("NotificationServiceDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
 
   createdById Int?
   updatedById Int?
@@ -248,9 +248,9 @@ model Game {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime?
   deletedAt  DateTime?
-  createdBy  User?     @relation("GameCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
-  updatedBy  User?     @relation("GameUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
-  deletedBy  User?     @relation("GameDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+  createdBy  User?     @relation("GameCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy  User?     @relation("GameUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy  User?     @relation("GameDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
 
   createdById Int?
   updatedById Int?
@@ -271,9 +271,9 @@ model GameResult {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime?
   deletedAt    DateTime?
-  createdBy    User?      @relation("GameResultCreatedBy", fields: [createdById], references: [userId], onDelete: Cascade)
-  updatedBy    User?      @relation("GameResultUpdatedBy", fields: [updatedById], references: [userId], onDelete: Cascade)
-  deletedBy    User?      @relation("GameResultDeletedBy", fields: [deletedById], references: [userId], onDelete: Cascade)
+  createdBy    User?      @relation("GameResultCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull)
+  updatedBy    User?      @relation("GameResultUpdatedBy", fields: [updatedById], references: [userId], onDelete: SetNull)
+  deletedBy    User?      @relation("GameResultDeletedBy", fields: [deletedById], references: [userId], onDelete: SetNull)
 
   createdById Int?
   updatedById Int?

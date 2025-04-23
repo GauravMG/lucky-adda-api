@@ -180,6 +180,8 @@ class AuthController {
 						])
 						existingUser = existingUser[0]
 						isPersonalInfoCompleted = false
+					} else if ((existingUser.password ?? "").trim() === "") {
+						isPersonalInfoCompleted = false
 					}
 
 					const {userId} = existingUser
