@@ -38,7 +38,7 @@ export default class ReportModel {
 							GROUP BY ub2."betNumber"
 							ORDER BY SUM(ub2."betAmount") DESC
 							LIMIT 1
-						) AS "maxBetNumber"
+						) AS "maxBetAmountNumber"
 					FROM "Game" g
 					LEFT JOIN "UserBet" ub
 						ON ub."gameId" = g."gameId"
@@ -51,7 +51,7 @@ export default class ReportModel {
 							AND DATE(gr."resultTime") = CURRENT_DATE
 					WHERE ${whereArr.join(" AND ")}
 					GROUP BY g."gameId", g."logo", g."name", gr."resultNumber"
-					ORDER BY g."gameId" ASC
+					ORDER BY g."name" ASC
 				`
 			)
 
@@ -92,6 +92,11 @@ export default class ReportModel {
 					ORDER BY ub."betNumber"
 				`
 			)
+
+			data = data.map((el) => ({
+				...el,
+				totalBetsPlaced: Number(el.totalBetsPlaced)
+			}))
 
 			return data
 		} catch (error) {

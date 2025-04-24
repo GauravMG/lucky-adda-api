@@ -25,9 +25,11 @@ class ReportController {
 
 			const [data] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					return await this.reportModel.gameStats(transaction, {
-						filter
-					})
+					return await Promise.all([
+						this.reportModel.gameStats(transaction, {
+							filter
+						})
+					])
 				}
 			)
 
@@ -53,9 +55,11 @@ class ReportController {
 
 			const [data] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					return await this.reportModel.betsByNumbers(transaction, {
-						filter
-					})
+					return await Promise.all([
+						this.reportModel.betsByNumbers(transaction, {
+							filter
+						})
+					])
 				}
 			)
 
@@ -81,9 +85,11 @@ class ReportController {
 
 			const [data] = await prisma.$transaction(
 				async (transaction: PrismaClientTransaction) => {
-					return await this.reportModel.betsByUsers(transaction, {
-						filter
-					})
+					return await Promise.all([
+						this.reportModel.betsByUsers(transaction, {
+							filter
+						})
+					])
 				}
 			)
 
