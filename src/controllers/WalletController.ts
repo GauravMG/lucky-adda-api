@@ -243,7 +243,9 @@ class WalletController {
 						if (
 							!wallet.isConverted &&
 							wallet.transactionType === "debit" &&
-							["approved", "pending"].indexOf(wallet.approvalStatus) >= 0
+							["approved", "pending", "rejected"].indexOf(
+								wallet.approvalStatus
+							) >= 0
 						) {
 							totalDebit += Number(wallet.amount)
 						}
@@ -251,7 +253,9 @@ class WalletController {
 						if (
 							!wallet.isConverted &&
 							wallet.transactionType === "debit" &&
-							["approved", "pending"].indexOf(wallet.approvalStatus) >= 0 &&
+							["approved", "pending", "rejected"].indexOf(
+								wallet.approvalStatus
+							) >= 0 &&
 							(wallet.gameId ?? "").toString().trim() === ""
 						) {
 							totalWithdraw += Number(wallet.amount)
