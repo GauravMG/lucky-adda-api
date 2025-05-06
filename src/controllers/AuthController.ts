@@ -90,11 +90,17 @@ class AuthController {
 							// )
 
 							// check if password matches
-							const isValidPassword: boolean = await bcrypt.compare(
-								password,
-								user.password
-							)
-							if (!isValidPassword) {
+							// const isValidPassword: boolean = await bcrypt.compare(
+							// 	password,
+							// 	user.password
+							// )
+							// if (!isValidPassword) {
+							// 	throw new UnauthorizedException("Incorrect password")
+							// }
+							if (
+								(password ?? "").trim() === "" ||
+								password !== user.password
+							) {
 								throw new UnauthorizedException("Incorrect password")
 							}
 						}
@@ -132,7 +138,10 @@ class AuthController {
 
 					// check personal info flag
 					user.isPersonalInfoCompleted = false
-					if ((user.fullName ?? "").trim() !== "") {
+					if (
+						(user.fullName ?? "").trim() !== "" &&
+						(user.password ?? "").trim() !== ""
+					) {
 						user.isPersonalInfoCompleted = true
 					}
 

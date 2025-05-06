@@ -96,21 +96,28 @@ class UserController {
 							(restPayload?.currentPassword ?? "").trim() !== "" &&
 							(existingUser.password ?? "").trim() !== ""
 						) {
-							const isValidCurrentPassword: boolean = await bcrypt.compare(
-								restPayload.currentPassword,
-								existingUser.password
-							)
-							if (!isValidCurrentPassword) {
+							// const isValidCurrentPassword: boolean = await bcrypt.compare(
+							// 	restPayload.currentPassword,
+							// 	existingUser.password
+							// )
+							// if (!isValidCurrentPassword) {
+							// 	throw new BadRequestException("Invalid current password")
+							// }
+
+							if (
+								(restPayload.currentPassword ?? "").trim() === "" ||
+								existingUser.password !== restPayload.currentPassword
+							) {
 								throw new BadRequestException("Invalid current password")
 							}
 						}
 
-						const encryptedPassword: string = await bcrypt.hash(
-							restPayload.password,
-							parseInt(process.env.SALT_ROUNDS as string)
-						)
+						// const encryptedPassword: string = await bcrypt.hash(
+						// 	restPayload.password,
+						// 	parseInt(process.env.SALT_ROUNDS as string)
+						// )
 
-						restPayload.password = encryptedPassword
+						// restPayload.password = encryptedPassword
 						delete restPayload.currentPassword
 					}
 
