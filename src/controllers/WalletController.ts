@@ -53,10 +53,14 @@ class WalletController {
 				async (transaction: PrismaClientTransaction) => {
 					let wallet = await this.commonModelWallet.bulkCreate(
 						transaction,
-						payload.map((el) => ({
+						payload.map(({isAddDepositBonus, ...el}) => ({
 							...el,
 							approvalStatus:
-								el.transactionType === "credit" ? "approved" : "pending",
+								(el.approvalStatus ?? "").trim() !== ""
+									? el.approvalStatus
+									: el.transactionType === "credit"
+										? "approved"
+										: "pending",
 							remarks:
 								(el.remarks ?? "").trim() !== ""
 									? el.remarks
@@ -71,12 +75,13 @@ class WalletController {
 					for (let i = 0; i < payload.length; i++) {
 						if (
 							payload[i].transactionType === "credit" &&
-							(payload[i].remarks ?? "").trim() === "" &&
+							((payload[i].remarks ?? "").trim() === "" ||
+								payload[i].isAddDepositBonus) &&
 							Number(payload[i].amount) >= 2000 &&
 							!payload[i].isBonus
 						) {
 							newPayload.push({
-								...payload[i],
+								...(({isAddDepositBonus, ...rest}) => rest)(payload[i]),
 								amount:
 									payload[i].amount *
 									(parseInt((process.env.AMOUNT_DEPOSIT as string) ?? "1") /
@@ -110,7 +115,7 @@ class WalletController {
 								)
 								if (referredByUser) {
 									newPayload.push({
-										...payload[i],
+										...(({isAddDepositBonus, ...rest}) => rest)(payload[i]),
 										userId: referredByUser.userId,
 										transactionType: "credit",
 										amount:
