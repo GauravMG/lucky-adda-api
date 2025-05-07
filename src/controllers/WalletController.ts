@@ -178,7 +178,9 @@ class WalletController {
 				totalDeposit: 0,
 				totalWinning: 0,
 				totalWinningConverted: 0,
-				totalWinningBalance: 0
+				totalWinningBalance: 0,
+				totalDebit: 0,
+				totalWithdraw: 0
 			}
 
 			const [wallets, total] = await prisma.$transaction(
@@ -258,9 +260,7 @@ class WalletController {
 						if (
 							!wallet.isConverted &&
 							wallet.transactionType === "debit" &&
-							["approved", "pending", "rejected"].indexOf(
-								wallet.approvalStatus
-							) >= 0 &&
+							["approved", "pending"].indexOf(wallet.approvalStatus) >= 0 &&
 							(wallet.gameId ?? "").toString().trim() === ""
 						) {
 							totalWithdraw += Number(wallet.amount)
@@ -292,6 +292,8 @@ class WalletController {
 					stats.totalWinning = totalWinning
 					stats.totalWinningConverted = totalWinningConverted
 					stats.totalWinningBalance = totalWinningBalance
+					stats.totalDebit = totalDebit
+					stats.totalWithdraw = totalWithdraw
 
 					const [users, games, userBets] = await Promise.all([
 						this.commonModelUser.list(transaction, {
