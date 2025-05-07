@@ -729,7 +729,7 @@ class GameController {
 
 			const {userId, roleId}: Headers = req.headers
 
-			const {gameId, resultNumber} = req.body
+			const {gameId, resultNumber, resultTime} = req.body
 
 			const userPushNotificationPayload: {
 				token: string
@@ -798,6 +798,7 @@ class GameController {
 							{
 								gameId,
 								resultNumber,
+								resultTime,
 								resultType: "open"
 							}
 						],
